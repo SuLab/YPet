@@ -1,0 +1,44 @@
+.head-space-xl { margin-top: 60px; }
+
+p {
+  font-family: 'Palatino Linotype', 'Book Antiqua', 'Palatino', 'serif';
+  line-height: 1.8em;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+}
+
+p {
+  cursor: pointer;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+span:hover {
+  cursor: pointer;
+  color: steelblue;
+}
+
+span.selected {
+  background-color: #0cf;
+  animation:highlight .25s;
+  -webkit-animation:highlight .25s;
+}
+
+@keyframes highlight {
+  from { background-color: #fff; }
+  to { background-color: #0cf; }
+}
+
+@-webkit-keyframes highlight {
+  from { background-color: #fff; }
+  to { background-color: #0cf; }
+}
+
+span.neighbor {
+  margin-right: 5px;
+}

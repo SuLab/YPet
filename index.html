@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title>YPet Demo</title>
+        <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
+        <link rel='stylesheet' href='main.css'>
+    </head>
+    <body>
+
+      <div class='container head-space-xl'>
+        <div class='row'>
+          <div class='col-xs-10 col-xs-offset-1 paragraph'>
+            <p>In the Caucasian population, it has been demonstrated that the insulin gene (INS) region contains the insulin-dependent diabetes mellitus locus (IDDM2). In the Japanese population, however, there has been no report demonstrating the contribution of IDDM2 to the pathogenesis of IDDM. We conducted an association study of IDDM in a large number of Japanese subjects with multiple polymorphisms in INS region. We found a significant association of the INS region with IDDM. Alleles positively associated with IDDM in INS region were the same as those positively-associated with IDDM in Caucasian population, although positively-associated alleles are very common (allele frequencies &gt; 0.9) in the Japanese general population. These data suggest that IDDM2 is involved in the genetic susceptibility to IDDM in Japanese. The high frequencies of disease-associated alleles in the general population suggest that IDDM2 locus is not responsible for the low incidence of IDDM in Japanese.</p>
+          </div>
+        </div>
+
+        <hr />
+        <div class='row'>
+          <div class='col-xs-4 col-xs-offset-1'>
+            <p>YPet Annotations</p>
+          </div>
+        </div>
+      </div>
+
+      <script id='word-template' type='text/template'><% if(neighbor) { %><%= text %><% } else { %><%= text %> <% } %></script>
+
+      <script src='//code.jquery.com/jquery-2.1.1.min.js'></script>
+      <script src='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
+      <script src='//underscorejs.org/underscore-min.js'></script>
+      <script src='//backbonejs.org/backbone-min.js'></script>
+      <script src='src/backbone-relational.js'></script>
+      <script src='src/backbone.marionette.min.js'></script>
+
+      <script src='src/ypet.js'></script>
+   </body>
+</html>
