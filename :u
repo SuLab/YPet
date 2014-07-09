@@ -26,7 +26,7 @@ WordList = Backbone.Collection.extend({
     return this.each(function(word) { word.set(attr, false); });
   },
 
-  getBetweenRange : function(start, stop) {
+  selectBetweenRange : function(start, stop) {
     return this.filter(function(word){
       return word.get('start') >= start && word.get('start') <= stop;
     });
@@ -65,7 +65,7 @@ Annotation = Backbone.RelationalModel.extend({
       this.set('type', this.get('type')+1 );
     }
 
-    this.get('words').each(function(word) {
+    _.each( this.words(), function(word) {
       word.trigger('highlight');
     });
 
@@ -82,17 +82,10 @@ AnnotationList = Backbone.Collection.extend({
   model   : Annotation,
   url     : '/api/v1/annotations',
 
-  exactMatch : function(word) {
-    return this.filter(function(annotation) {
-      return  word.get('start') == annotation.get('words').first().get('start') &&
-              word.get('text') == annotation.getText();
-    });
-  },
-
   add : function(ann) {
     //-- Prevent duplicate annotations from being submitted
     var isDupe = this.any(function(_ann) {
-        return _ann.getText() === ann.getText() && _ann.get('words').first().get('start') === ann.get('words').first().get('start');
+        return _ann.getText() === ann.getText() && _ann.first().get('start') === ann.first().get('start');
     });
     //if ( this.get('words').length == 0 ) { return false; }
     if (isDupe) { return false; }
@@ -167,7 +160,6 @@ WordView = Backbone.Marionette.ItemView.extend({
   initialize : function(options) {
     this.listenTo(this.model, 'change:selected', this.render);
     this.listenTo(this.model, 'change:neighbor', this.render);
-    this.listenTo(this.model, 'highlight', function() { console.log('HL', this); this.$el.css({'backgroundColor': 'pink'}); });
     options['firefox'] = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
   },
 
@@ -187,7 +179,7 @@ WordView = Backbone.Marionette.ItemView.extend({
           sel = [last_model.get('start'), this.model.get('start')],
           range = [_.min(sel), _.max(sel)];
       this.selectWordsOfAnnotations();
-      _.each(this.model.collection.getBetweenRange(range[0], range[1]+1), function(word) { word.set('selected', true); });
+      this.model.collection.selectBetweenRange(range[0], range[1]+1).each(function(word) { word.set('selected', true); });
     }
   },
 
@@ -219,16 +211,19 @@ WordView = Backbone.Marionette.ItemView.extend({
         stop_i = last_model.get('stop')+1;
       }
 
-      self.createAnnotation(start_i, stop_i)
+      self.createAnns(start_i, stop_i)
     } else {
-      console.log('***', self.model);
       //-- If the single annotation or range started on a prexisting annotation
-      if ( self.model.get('parentAnnotation') ) {
-          self.model.get('parentAnnotation').toggleType()
-      } else {
+      //if ( self.model.Annotation() ) {
+      //  _.each(annotations.findContaining( this.model.get('start') ), function(ann) {
+        //  //-- for all the anns that click had, increment up the type
+        //  ann.toggleType()
+        //})
+
+      //} else {
         //-- If the single annotation or range started on a prexisting annotation
-        self.createAnnotation(self.model.get('start'), self.model.get('stop')+1);
-      }
+        self.createAnns(self.model.get('start'), self.model.get('stop')+1);
+      //}
     }
 
     this.selectWordsOfAnnotations();
@@ -240,10 +235,15 @@ WordView = Backbone.Marionette.ItemView.extend({
     });
   },
 
-  createAnnotation : function(start, stop) {
-    this.model.get('parentDocument').get('annotations').create({
+  createAnns : function(start, stop) {
+    var self = this,
+        doc = this.model.get('parentDocument'),
+        annotations = doc.get('annotations');
+
+    var words = this.model.collection.selectBetweenRange(start, stop)
+    annotations.create({
       kind : 0,
-      words: this.model.collection.getBetweenRange(start, stop)
+      words: words
     });
   },
 
@@ -282,6 +282,7 @@ WordView = Backbone.Marionette.ItemView.extend({
     this.model.collection.clear('neighbor');
     var anns = this.model.get('parentDocument').get('annotations');
 
+
     this.model.collection.each(function(word, word_idx) {
       //-- Is the person to your right selected?
       var left_neighbor = word.collection.at(   word_idx - 1),
@@ -291,7 +292,7 @@ WordView = Backbone.Marionette.ItemView.extend({
         word.set('neighbor', true);
       }
 
-      if(anns.exactMatch(word).length > 0 && left_neighbor) {
+      if(left_neighbor) {
         if(left_neighbor.get('selected')) {
           left_neighbor.set('neighbor', true);
         }

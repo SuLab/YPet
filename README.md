@@ -11,3 +11,6 @@ YPet is an experimental way to select words in text elements focused on speed fo
 
 YPet was developed to rapidly annotate bio-medical literature for [Mark2Cure](http://mark2cure.org)
 
+## Rules
+
+

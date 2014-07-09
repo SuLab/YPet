@@ -1,14 +1,12 @@
 .head-space-xl { margin-top: 60px; }
 
-p {
+p.paragraph {
   font-family: 'Palatino Linotype', 'Book Antiqua', 'Palatino', 'serif';
   line-height: 1.8em;
   font-weight: normal;
   font-style: normal;
   font-size: 20px;
-}
 
-p {
   cursor: pointer;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -18,17 +16,22 @@ p {
   user-select: none;
 }
 
-span:hover {
+p.paragraph span:hover {
   cursor: pointer;
   color: steelblue;
 }
 
-span.selected {
+p.paragraph span.neighbor {
+  margin-right: 5px;
+}
+
+p.paragraph span.selected {
   background-color: #0cf;
   animation:highlight .25s;
   -webkit-animation:highlight .25s;
 }
 
+/*
 @keyframes highlight {
   from { background-color: #fff; }
   to { background-color: #0cf; }
@@ -38,7 +41,5 @@ span.selected {
   from { background-color: #fff; }
   to { background-color: #0cf; }
 }
+*/
 
-span.neighbor {
-  margin-right: 5px;
-}
