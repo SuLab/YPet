@@ -27,19 +27,11 @@ p.paragraph span.neighbor {
 
 p.paragraph span.selected {
   background-color: #0cf;
-  animation:highlight .25s;
-  -webkit-animation:highlight .25s;
 }
 
-/*
-@keyframes highlight {
-  from { background-color: #fff; }
-  to { background-color: #0cf; }
+div.swatch {
+  height: 16px;
+  width: 16px;
+  float: left;
+  margin-right: 16px;
 }
-
-@-webkit-keyframes highlight {
-  from { background-color: #fff; }
-  to { background-color: #0cf; }
-}
-*/
-

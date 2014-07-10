@@ -4,29 +4,25 @@
 
 Word = Backbone.RelationalModel.extend({
   defaults: {
-    text      : '',
-    length    : null,
-    start     : null,
-    stop      : null,
-    latest    : false,
-    selected  : false,
-    neighbor  : false,
-  },
-
-  //inAnnotation : function() {
-  //  this.get('parentDocument')
-  //}
+    text: '',
+    length: null,
+    start: null,
+    stop: null,
+    latest: false,
+    selected: false,
+    neighbor: false,
+  }
 });
 
 WordList = Backbone.Collection.extend({
-  model   : Word,
-  url     : '/api/v1/words',
+  model: Word,
+  url: '/api/v1/words',
 
-  clear : function(attr) {
+  clear: function(attr) {
     return this.each(function(word) { word.set(attr, false); });
   },
 
-  getBetweenRange : function(start, stop) {
+  getBetweenRange: function(start, stop) {
     return this.filter(function(word){
       return word.get('start') >= start && word.get('start') <= stop;
     });
@@ -35,10 +31,10 @@ WordList = Backbone.Collection.extend({
 
 Annotation = Backbone.RelationalModel.extend({
   defaults: {
-    type    : 0,
+    type: 0,
   },
 
-  sync    : function () { return false; },
+  sync: function () { return false; },
 
   relations: [{
     type: 'HasMany',
@@ -48,7 +44,7 @@ Annotation = Backbone.RelationalModel.extend({
     collectionType: WordList,
 
     reverseRelation : {
-      key : 'parentAnnotation',
+      key: 'parentAnnotation',
       includeInJSON: false,
     }
   }],
@@ -58,29 +54,25 @@ Annotation = Backbone.RelationalModel.extend({
   },
 
   toggleType : function() {
+    this.get('words').each(function(word) { word.trigger('highlight'); });
+
     if( this.get('type') == YPet.AnnotationTypes.length-1 ) {
       this.destroy();
-      return false;
     } else {
       this.set('type', this.get('type')+1 );
     }
 
-    this.get('words').each(function(word) {
-      word.trigger('highlight');
-    });
-
-  },
-
+  }
 });
 
 AnnotationTypeList = Backbone.Collection.extend({
-  model   : Backbone.Model.extend({}),
-  url     : function() { return false; }
+  model: Backbone.Model.extend({}),
+  url: function() { return false; }
 });
 
 AnnotationList = Backbone.Collection.extend({
-  model   : Annotation,
-  url     : '/api/v1/annotations',
+  model: Annotation,
+  url: '/api/v1/annotations',
 
   exactMatch : function(word) {
     return this.filter(function(annotation) {
@@ -137,10 +129,10 @@ Paragraph = Backbone.RelationalModel.extend({
           length = word.length;
           step = step + length + 1;
           return {
-            'text'      : word,
-            'length'    : length,
-            'start'     : step - length - 1,
-            'stop'      : step - 2
+            'text': word,
+            'length': length,
+            'start': step - length - 1,
+            'stop': step - 2
           }
         });
 
@@ -155,19 +147,29 @@ Paragraph = Backbone.RelationalModel.extend({
 //-- Views
 //
 WordView = Backbone.Marionette.ItemView.extend({
-  template : '#word-template',
-  tagName : 'span',
+  template: '#word-template',
+  tagName: 'span',
 
   events : {
-    'mousedown'   : 'clickOrInitDrag',
-    'mouseup'     : 'releaseDrag',
-    'mouseover'   : 'hover',
+    'mousedown' : 'mousedownStart',
+    'mouseover' : 'mousehoverStart',
+    'mouseup'   : 'mouseupRelease',
   },
 
   initialize : function(options) {
     this.listenTo(this.model, 'change:selected', this.render);
     this.listenTo(this.model, 'change:neighbor', this.render);
-    this.listenTo(this.model, 'highlight', function() { console.log('HL', this); this.$el.css({'backgroundColor': 'pink'}); });
+    this.listenTo(this.model, 'highlight', function() {
+      var index = this.model.get('parentAnnotation').get('type')+1;
+
+      if(index == YPet.AnnotationTypes.length) {
+        this.$el.css({'backgroundColor': 'white'});
+      } else {
+        var color = YPet.AnnotationTypes.at( index ).get('color');
+        this.$el.css({'backgroundColor': color});
+      }
+
+    });
     options['firefox'] = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
   },
 
@@ -176,10 +178,12 @@ WordView = Backbone.Marionette.ItemView.extend({
     this.renderingClassSetting('neighbor');
   },
 
-  //
-  //-- Event actions
-  //
-  hover : function(evt) {
+  mousedownStart : function() {
+    this.model.collection.clear('latest');
+    this.model.set({'latest': true, 'selected': true});
+  },
+
+  mousehoverStart : function(evt) {
     var dragging = this.options.firefox ? 0 : evt.which;
     //-- If you're dragging with the mouse down to make a large selection
     if( dragging ) {
@@ -191,22 +195,12 @@ WordView = Backbone.Marionette.ItemView.extend({
     }
   },
 
-  clickOrInitDrag : function() {
-    //-- onmousedown we just set the word to be the latest so that we can refernce it later
-    //-- whent he user releases after staying put or moving around
-    this.model.collection.clear('latest');
-    this.model.set({'latest': true, 'selected': true});
-  },
-
-  releaseDrag : function(evt) {
-    //-- onmouseup from the user
+  mouseupRelease : function(evt) {
     var self = this,
         last_model = this.model.collection.findWhere({latest: true});
 
     if( last_model != this.model ) {
-      //
       //-- If the user just finished making a drag selection
-      //
       var sel = [last_model.get('start'), this.model.get('stop')],
           range = [_.min(sel), _.max(sel)],
           start_i = range[0],
@@ -221,7 +215,6 @@ WordView = Backbone.Marionette.ItemView.extend({
 
       self.createAnnotation(start_i, stop_i)
     } else {
-      console.log('***', self.model);
       //-- If the single annotation or range started on a prexisting annotation
       if ( self.model.get('parentAnnotation') ) {
           self.model.get('parentAnnotation').toggleType()
@@ -233,11 +226,6 @@ WordView = Backbone.Marionette.ItemView.extend({
 
     this.selectWordsOfAnnotations();
     this.selectNeighborsOfAnnotations();
-
-    _.each(this.model.get('parentDocument').get('annotations').models, function(ann) {
-      console.log( ann.getText(), ann );
-      console.log('/ / / / / / / /')
-    });
   },
 
   createAnnotation : function(start, stop) {
@@ -321,13 +309,33 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
 var SingleLink = Backbone.Marionette.ItemView.extend({
   tagName: 'li',
   className: 'list-group-item',
-  template: _.template('<p><%-name%></p>')
+  template: _.template('<div class="swatch" style="background-color:<%-color%>"></div> <%-name%>')
 });
 
 var ListView = Backbone.Marionette.CollectionView.extend({
   tagName: 'ul',
   childView: SingleLink
 });
+
+var SingleAnnotation = Backbone.Marionette.ItemView.extend({
+  tagName: 'li',
+  className: 'list-group-item',
+  templateHelpers: function(a) {
+    return {'text': this.model.getText(),
+            'type': YPet.AnnotationTypes.at( this.model.get('type') ).get('name') }
+  },
+
+  template: _.template('<%-text%> <span class="badge"><%-type%></span>'),
+  initialize : function(options) {
+    this.listenTo(this.model, 'change:type', this.render);
+  }
+});
+
+var ListAnnotationView = Backbone.Marionette.CollectionView.extend({
+  tagName: 'ul',
+  childView: SingleAnnotation
+});
+
 
 //
 //-- Init
@@ -348,6 +356,13 @@ YPet.addInitializer(function(options) {
     collection: YPet.AnnotationTypes,
     el: '.annotation-type-list'
   })).render();
+
+
+  (new ListAnnotationView({
+    collection: p.get('annotations'),
+    el: '.annotation-list'
+  })).render();
+
 
   //Assign View to Region
   YPet.addRegions({
