@@ -25,10 +25,6 @@ p.paragraph span.neighbor {
   margin-right: 5px;
 }
 
-p.paragraph span.selected {
-  background-color: #0cf;
-}
-
 div.swatch {
   height: 16px;
   width: 16px;

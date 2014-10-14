@@ -1,8 +1,11 @@
-//
-//-- Models & Collections
-//
+/*
+ *  Models & Collections
+ */
 
 Word = Backbone.RelationalModel.extend({
+  /* A Word model repersents each tokenized word present
+   * in the paragraph YPet is attached to. */
+
   defaults: {
     text: '',
     length: null,
@@ -15,11 +18,18 @@ Word = Backbone.RelationalModel.extend({
 });
 
 WordList = Backbone.Collection.extend({
+  /* Common utils to perform on an array of Word
+   * models for house keeping and search */
+
   model: Word,
   url: '/api/v1/words',
 
   clear: function(attr) {
     return this.each(function(word) { word.set(attr, false); });
+  },
+  
+  whitewash: function() {
+    return this.each(function(word) { word.trigger('white'); });
   },
 
   getBetweenRange: function(start, stop) {
@@ -30,7 +40,15 @@ WordList = Backbone.Collection.extend({
 });
 
 Annotation = Backbone.RelationalModel.extend({
+  /* Each annotation in the paragraph. An Annotation
+   * is composed of an array of Words in order to determine
+   * the full text and position which are not
+   * explicity set */
+
   defaults: {
+    /* An annotation doesn't exist when removed so
+     * we can start them all off at 0 and not need to
+     * mix in a null type */
     type: 0,
   },
 
@@ -50,27 +68,34 @@ Annotation = Backbone.RelationalModel.extend({
   }],
 
   getText : function() {
+    /* Retrieves back the full text of the Annotation
+     * based on the words that compose the Annotation. */
     return this.get('words').pluck('text').join(' ');
   },
 
   toggleType : function() {
-    this.get('words').each(function(word) { word.trigger('highlight'); });
-
+    /* Removes (if only 1 Annotation type) or changes
+     * the Annotation type when clicked after existing */
     if( this.get('type') == YPet.AnnotationTypes.length-1 ) {
       this.destroy();
     } else {
       this.set('type', this.get('type')+1 );
     }
-
+    this.get('words').each(function(word) { word.trigger('highlight'); });
   }
 });
 
 AnnotationTypeList = Backbone.Collection.extend({
+  /* Very simple collection to store the type of
+   * Annotations that the application allows
+   * for paragraphs */
   model: Backbone.Model.extend({}),
   url: function() { return false; }
 });
 
 AnnotationList = Backbone.Collection.extend({
+  /* Utils for the Paragraph Annotations lists
+   * collectively */
   model: Annotation,
   url: '/api/v1/annotations',
 
@@ -93,6 +118,8 @@ AnnotationList = Backbone.Collection.extend({
 });
 
 Paragraph = Backbone.RelationalModel.extend({
+  /* Foundational model for tracking everything going
+   * on within a Paragraph like Words and Annotations */
   defaults: {
     text : '',
   },
@@ -121,6 +148,8 @@ Paragraph = Backbone.RelationalModel.extend({
     }
   }],
 
+  /* Required step after attaching YPet to a <p> to
+   * extract the individual words */
   parseText : function() {
     var self = this,
         step = 0,
@@ -143,84 +172,111 @@ Paragraph = Backbone.RelationalModel.extend({
   },
 });
 
-//
-//-- Views
-//
+/*
+ * Views
+ */
 WordView = Backbone.Marionette.ItemView.extend({
-  template: '#word-template',
+  template: _.template('<% if(neighbor) { %><%= text %><% } else { %><%= text %> <% } %>'),
   tagName: 'span',
 
+  /* These events are only triggered when over
+   * a span in the paragraph */
   events : {
-    'mousedown' : 'mousedownStart',
-    'mouseover' : 'mousehoverStart',
-    'mouseup'   : 'mouseupRelease',
+    'mousedown' : 'mousedown',
+    'mouseover' : 'mousehover',
+    'mouseup'   : 'mouseup',
   },
 
+  /* Setup even listeners for word spans
+   * 1. When the selected class is togged
+   * 2. When the neighbor flag changed (add trailing space)
+   * 3. When needing to highlight */
   initialize : function(options) {
     this.listenTo(this.model, 'change:selected', this.render);
     this.listenTo(this.model, 'change:neighbor', this.render);
+    this.listenTo(this.model, 'white', function() { this.$el.css({'backgroundColor': '#fff'}); });
     this.listenTo(this.model, 'highlight', function() {
-      var index = this.model.get('parentAnnotation').get('type')+1;
-
-      if(index == YPet.AnnotationTypes.length) {
-        this.$el.css({'backgroundColor': 'white'});
+      /* Figure out the current index of the annotation
+      * and use that to toggle the color */
+      var parent_annotation = this.model.get('parentAnnotation');
+      if(parent_annotation) {
+        /* This word is part of an annotation */
+        var annotation_type = YPet.AnnotationTypes.at(parent_annotation.get('type'));
+        this.$el.css({'backgroundColor': annotation_type.get('color')});
       } else {
-        var color = YPet.AnnotationTypes.at( index ).get('color');
-        this.$el.css({'backgroundColor': color});
+        /* This occurs during dragging */
+        var annotation_type = YPet.AnnotationTypes.at(0);
+        this.$el.css({'backgroundColor': annotation_type.get('color')});
       }
 
     });
     options['firefox'] = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
   },
 
+  /* Triggers the proper class assignment
+   * when the word <span> is redrawn */
   onRender : function() {
     this.renderingClassSetting('selected');
     this.renderingClassSetting('neighbor');
   },
 
-  mousedownStart : function() {
+  /* When clicking down, make sure to keep track
+   * that that word has been the latest interacted
+   * element */
+  mousedown : function() {
     this.model.collection.clear('latest');
     this.model.set({'latest': true, 'selected': true});
   },
 
-  mousehoverStart : function(evt) {
+  mousehover : function(evt) {
     var dragging = this.options.firefox ? 0 : evt.which;
-    //-- If you're dragging with the mouse down to make a large selection
+    /* If you're dragging with the mouse down to make a large selection */
     if( dragging ) {
       var last_model = this.model.collection.findWhere({latest: true}),
           sel = [last_model.get('start'), this.model.get('start')],
           range = [_.min(sel), _.max(sel)];
       this.selectWordsOfAnnotations();
-      _.each(this.model.collection.getBetweenRange(range[0], range[1]+1), function(word) { word.set('selected', true); });
+      /* Make sure all words from the start and where the mouse
+       * is now is selected */
+      _.each(this.model.collection.getBetweenRange(range[0], range[1]+1), function(word) { word.set('selected', true); word.trigger('highlight'); });
     }
   },
 
-  mouseupRelease : function(evt) {
+  mouseup : function(evt) {
     var self = this,
-        last_model = this.model.collection.findWhere({latest: true});
+        word = self.model,
+        last_model = word.collection.findWhere({latest: true});
 
-    if( last_model != this.model ) {
-      //-- If the user just finished making a drag selection
-      var sel = [last_model.get('start'), this.model.get('stop')],
+    evt.stopPropagation();
+
+    if( last_model != word ) {
+      /* If the user just finished making a drag selection */
+      var sel = [last_model.get('start'), word.get('stop')],
           range = [_.min(sel), _.max(sel)],
           start_i = range[0],
           stop_i = range[1]+1;
 
-      //-- (TODO) http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
+      /* (TODO) http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript */
       if( String(sel) !== String(range) ) {
         //-- They dragged in reverse
-        start_i = this.model.get('start');
+        start_i = word.get('start');
         stop_i = last_model.get('stop')+1;
       }
 
       self.createAnnotation(start_i, stop_i)
     } else {
-      //-- If the single annotation or range started on a prexisting annotation
-      if ( self.model.get('parentAnnotation') ) {
-          self.model.get('parentAnnotation').toggleType()
+      /* If the single annotation or range started
+       * on a prexisting annotation
+      *
+      * parentAnnotation is blank on words that are not
+      * part of an Annotation */
+      var parent_annotation = word.get('parentAnnotation')
+      if ( parent_annotation ) {
+          self.$el.css({'backgroundColor': '#fff'});
+          parent_annotation.toggleType()
       } else {
-        //-- If the single annotation or range started on a prexisting annotation
-        self.createAnnotation(self.model.get('start'), self.model.get('stop')+1);
+        /* If the single annotation or range started on a prexisting annotation */
+        self.createAnnotation(word.get('start'), word.get('stop')+1);
       }
     }
 
@@ -229,40 +285,23 @@ WordView = Backbone.Marionette.ItemView.extend({
   },
 
   createAnnotation : function(start, stop) {
-    this.model.get('parentDocument').get('annotations').create({
+    var word = this.model;
+    word.get('parentDocument').get('annotations').create({
       kind : 0,
-      words: this.model.collection.getBetweenRange(start, stop)
+      words: word.collection.getBetweenRange(start, stop)
     });
+    word.trigger('highlight');
   },
 
-  //-- Utilities for view
-  getIndicesOf : function(needle, haystack, caseSensitive) {
-    var startIndex = 0,
-        needleLen = needle.length,
-        index,
-        indices = [];
-
-    if (!caseSensitive) {
-        haystack = haystack.toLowerCase();
-        needle = needle.toLowerCase();
-    }
-
-    while ((index = haystack.indexOf(needle, startIndex)) > -1) {
-        if(this.clean( haystack.substring(index - 1, index + needleLen + 1) ) === needle) { indices.push(index); }
-        startIndex = index + needleLen;
-    }
-    return indices;
-  },
-
-  clean : function(text) {
-    return text.replace(/^[^a-z\d]*|[^a-z\d]*$/gi, '');
-  },
-
+  /*
+   * Utilities for view
+   */
   selectWordsOfAnnotations : function() {
     this.model.collection.clear('selected');
+    this.model.collection.whitewash();
 
     this.model.get('parentDocument').get('annotations').each(function(annotation) {
-      annotation.get('words').each(function(word) { word.set('selected', true); });
+      annotation.get('words').each(function(word) { word.set('selected', true); word.trigger('highlight'); });
     });
   },
 
@@ -290,6 +329,8 @@ WordView = Backbone.Marionette.ItemView.extend({
 
   },
 
+  /* Adds the actual class to the element (can't
+   * do in the template) so must manually add */
   renderingClassSetting : function(attrCheck) {
     if( this.model.get(attrCheck) ) {
       this.$el.addClass(attrCheck);
@@ -304,72 +345,19 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
   childView  : WordView,
   tagName   : 'p',
   className : 'paragraph',
-});
+  events : {
+    'mouseup' : function(evt) {
+      var last_word = _.last(this.collection.where({'selected': true})); 
+      if(last_word) {
+        this.children.each(function(view, idx) {
+          if(last_word.get('start') == view.model.get('start')) {
+            view.$el.trigger('mouseup');
+          };
+        });
+      }
+      this.collection.clear('selected');
 
-var SingleLink = Backbone.Marionette.ItemView.extend({
-  tagName: 'li',
-  className: 'list-group-item',
-  template: _.template('<div class="swatch" style="background-color:<%-color%>"></div> <%-name%>')
-});
-
-var ListView = Backbone.Marionette.CollectionView.extend({
-  tagName: 'ul',
-  childView: SingleLink
-});
-
-var SingleAnnotation = Backbone.Marionette.ItemView.extend({
-  tagName: 'li',
-  className: 'list-group-item',
-  templateHelpers: function(a) {
-    return {'text': this.model.getText(),
-            'type': YPet.AnnotationTypes.at( this.model.get('type') ).get('name') }
+    },
   },
 
-  template: _.template('<%-text%> <span class="badge"><%-type%></span>'),
-  initialize : function(options) {
-    this.listenTo(this.model, 'change:type', this.render);
-  }
 });
-
-var ListAnnotationView = Backbone.Marionette.CollectionView.extend({
-  tagName: 'ul',
-  childView: SingleAnnotation
-});
-
-
-//
-//-- Init
-//
-YPet = new Backbone.Marionette.Application();
-
-YPet.addInitializer(function(options) {
-  p = new Paragraph({'text': $('p.paragraph').html()});
-  p.parseText();
-
-  YPet.AnnotationTypes = new AnnotationTypeList([
-    {name: 'Disease', color: '#00ccff'},
-    {name: 'Gene', color: '#22A301'},
-    {name: 'Protein', color: 'yellow'}
-  ]);
-
-  (new ListView({
-    collection: YPet.AnnotationTypes,
-    el: '.annotation-type-list'
-  })).render();
-
-
-  (new ListAnnotationView({
-    collection: p.get('annotations'),
-    el: '.annotation-list'
-  })).render();
-
-
-  //Assign View to Region
-  YPet.addRegions({
-    text: '.paragraph',
-  });
-  var view = new WordCollectionView({collection: p.get('words')});
-  YPet.text.show( view );
-});
-
-YPet.start();
