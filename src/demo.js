@@ -40,15 +40,14 @@ YPet.addInitializer(function(options) {
 
   YPet.AnnotationTypes = new AnnotationTypeList([
     {name: 'Disease', color: '#00ccff'},
-    {name: 'Gene', color: '#22A301'},
-    {name: 'Protein', color: 'yellow'}
+    /*{name: 'Gene', color: '#22A301'},
+    {name: 'Protein', color: 'yellow'}*/
   ]);
 
   (new ListView({
     collection: YPet.AnnotationTypes,
     el: '.annotation-type-list'
   })).render();
-
 
   (new ListAnnotationView({
     collection: p.get('annotations'),

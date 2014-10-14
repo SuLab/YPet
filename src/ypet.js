@@ -27,7 +27,7 @@ WordList = Backbone.Collection.extend({
   clear: function(attr) {
     return this.each(function(word) { word.set(attr, false); });
   },
-  
+
   whitewash: function() {
     return this.each(function(word) { word.trigger('white'); });
   },
@@ -50,6 +50,7 @@ Annotation = Backbone.RelationalModel.extend({
      * we can start them all off at 0 and not need to
      * mix in a null type */
     type: 0,
+    cache_text: '',
   },
 
   sync: function () { return false; },
@@ -70,7 +71,21 @@ Annotation = Backbone.RelationalModel.extend({
   getText : function() {
     /* Retrieves back the full text of the Annotation
      * based on the words that compose the Annotation. */
-    return this.get('words').pluck('text').join(' ');
+    var words = this.get('words');
+    if(words.length) {
+      return words.pluck('text').join(' ');
+    } else {
+      return this.get('cache_text');
+    }
+  },
+
+  getStart : function() {
+    var words = this.get('words');
+    if(words.length) {
+      return words.first().get('start');
+    } else {
+      return false;
+    }
   },
 
   toggleType : function() {
@@ -101,8 +116,14 @@ AnnotationList = Backbone.Collection.extend({
 
   exactMatch : function(word) {
     return this.filter(function(annotation) {
-      return  word.get('start') == annotation.get('words').first().get('start') &&
+      return  word.get('start') == annotation.getStart() &&
               word.get('text') == annotation.getText();
+    });
+  },
+
+  initialize : function(options) {
+    this.listenTo(this, 'add', function(annotation) {
+      annotation.set('cache_text', annotation.getText());
     });
   },
 
@@ -111,7 +132,6 @@ AnnotationList = Backbone.Collection.extend({
     var isDupe = this.any(function(_ann) {
         return _ann.getText() === ann.getText() && _ann.get('words').first().get('start') === ann.get('words').first().get('start');
     });
-    //if ( this.get('words').length == 0 ) { return false; }
     if (isDupe) { return false; }
     Backbone.Collection.prototype.add.call(this, ann);
   }
@@ -347,7 +367,7 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
   className : 'paragraph',
   events : {
     'mouseup' : function(evt) {
-      var last_word = _.last(this.collection.where({'selected': true})); 
+      var last_word = _.last(this.collection.where({'selected': true}));
       if(last_word) {
         this.children.each(function(view, idx) {
           if(last_word.get('start') == view.model.get('start')) {
