@@ -35,13 +35,15 @@ var ListAnnotationView = Backbone.Marionette.CollectionView.extend({
 YPet = new Backbone.Marionette.Application();
 
 YPet.addInitializer(function(options) {
-  p = new Paragraph({'text': $('p.paragraph').html()});
+  var $text = $('p.paragraph');
+  p = new Paragraph({'text': $text.html()});
   p.parseText();
+  $text.remove();
 
   YPet.AnnotationTypes = new AnnotationTypeList([
     {name: 'Disease', color: '#00ccff'},
-    /*{name: 'Gene', color: '#22A301'},
-    {name: 'Protein', color: 'yellow'}*/
+    {name: 'Gene', color: '#22A301'},
+    {name: 'Protein', color: 'yellow'}
   ]);
 
   (new ListView({
@@ -57,7 +59,7 @@ YPet.addInitializer(function(options) {
 
   /* Assign View to Region */
   YPet.addRegions({
-    text: '.paragraph',
+    text: '#target',
   });
   var view = new WordCollectionView({collection: p.get('words')});
   YPet.text.show( view );
