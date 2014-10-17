@@ -208,10 +208,11 @@ WordView = Backbone.Marionette.ItemView.extend({
   /* Setup even listeners for word spans */
   initialize : function(options) {
     this.listenTo(this.model, 'change:neighbor', this.render);
-    this.listenTo(this.model, 'change:latest', function() {
+    this.listenTo(this.model, 'change:latest', function(model, value, options) {
       if(this.model.get('latest')) {
         this.model.trigger('highlight', {'color': '#7FE5FF'});
       }
+      if(options.force) { this.model.trigger('highlight', {'color': '#fff'}); }
     });
     this.listenTo(this.model, 'highlight', function(options) {
       this.$el.css({'backgroundColor': options.color});
@@ -228,7 +229,7 @@ WordView = Backbone.Marionette.ItemView.extend({
    * that that word has been the latest interacted
    * element */
   mousedown : function() {
-    this.model.set({'latest': Date.now()});
+    this.model.set({'latest': 1});
   },
 
   mousehover : function(evt) {
@@ -236,22 +237,27 @@ WordView = Backbone.Marionette.ItemView.extend({
         words = word.collection;
 
     /* You're dragging if another word has a latest timestamp */
-    /* (TODO) Dragging doesn't allow retraction by going back */
     if(_.compact(words.pluck('latest')).length) {
-      word.set({'latest': Date.now()});
+      if(word.get('latest') == null) { word.set({'latest': Date.now()}); }
 
       /* If the hover doesn't proceed in ordered fashion
        * we need to "fill in the blanks" between the words */
-      var word_idx = words.indexOf(word),
-          left_neighbor = (words.at(word_idx-1)||new Word()).get('latest'),
-          right_neighbor = (words.at(word_idx+1)||new Word()).get('latest');
+      var current_word_idx = words.indexOf(word);
+      /* (TODO) Cache this */
+      var first_word_idx = words.indexOf( words.find(function(word) { return word.get('latest') == 1; }) );
 
-      if(left_neighbor == null && right_neighbor == null) {
-        var selecion = words.filter(function(word) { return word.get('latest') != null; });
-        _.each(_.range(words.indexOf(_.first(selecion)), words.indexOf(_.last(selecion))), function(index) {
-          words.at(index).set('latest', Date.now());
-        });
-      }
+      /* Select everything from the starting to the end without
+       * updating the timestamp on the first_word */
+      var starting_positions = first_word_idx <= current_word_idx ? [first_word_idx, current_word_idx+1] : [first_word_idx+1, current_word_idx];
+      var selection_indexes = _.range(_.min(starting_positions), _.max(starting_positions));
+      _.each(_.without(selection_indexes, first_word_idx), function(idx) { words.at(idx).set('latest', Date.now()); });
+
+      /* If there are extra word selections up or downstream
+       * from the current selection, remove those */
+      var last_selection_indexes = _.map(words.reject(function(word) { return word.get('latest') == null; }), function(word) { return words.indexOf(word); });
+      var remove_indexes = _.difference(last_selection_indexes, selection_indexes);
+      _.each(remove_indexes, function(idx) { words.at(idx).set('latest', null, {'force': true}); });
+
     }
   },
 
@@ -293,13 +299,16 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
   tagName   : 'p',
   className : 'paragraph',
   events : {
-    'mouseup' : function(evt) {
-      var selection = this.collection.filter(function(word) { return word.get('latest') != null; });
-      if(selection.length) {
-        /* Doesn't actually matter which one */
-        var model = selection[0];
-        this.children.find(function(view, idx) { return model.get('start') == view.model.get('start'); }).$el.trigger('mouseup');
-      }
-    },
+    'mouseup': 'captureAnnotation',
+    'mouseleave': 'captureAnnotation',
   },
+
+  captureAnnotation: function(evt) {
+    var selection = this.collection.filter(function(word) { return word.get('latest') != null; });
+    if(selection.length) {
+      /* Doesn't actually matter which one */
+      var model = selection[0];
+      this.children.find(function(view, idx) { return model.get('start') == view.model.get('start'); }).$el.trigger('mouseup');
+    }
+  }
 });
