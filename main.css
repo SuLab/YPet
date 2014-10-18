@@ -16,6 +16,10 @@ p.paragraph {
   user-select: none;
 
   padding: 30px 60px;
+}
+
+#target p.paragraph,
+.alert-paragraph-box {
   border: 16px solid #f5f5f5;
 }
 
@@ -24,13 +28,16 @@ p.paragraph span:hover {
   color: steelblue;
 }
 
-p.paragraph span.neighbor {
-  margin-right: 5px;
+.annotation-text {
+  font-family: 'Palatino Linotype', 'Book Antiqua', 'Palatino', 'serif';
+  line-height: 1.8em;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4em;
 }
-
-div.swatch {
-  height: 16px;
-  width: 16px;
-  float: left;
-  margin-right: 16px;
+.annotation-type {
+  text-transform: uppercase;
+  font-size: 1.4em;
+  margin: 0px;
+  letter-spacing: 4px;
 }

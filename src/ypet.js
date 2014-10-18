@@ -103,31 +103,29 @@ AnnotationList = Backbone.Collection.extend({
       this.drawAnnotations(annotation);
     });
 
-    this.listenTo(this, 'remove', function(annotation) {
-      annotation.collection.parentDocument.get('words').each(function(word) {
+    this.listenTo(this, 'remove', function(annotation, collection) {
+      /* Must iterate b/c annotation var "words" attribute is
+       * empty at this point */
+      collection.parentDocument.get('words').each(function(word) {
         word.trigger('highlight', {'color': '#fff'});
         word.set('neighbor', false);
       });
 
-      var self = this;
-      annotation.collection.parentDocument.get('annotations').each(function(annotation) {
-        self.drawAnnotations(annotation);
+      collection.each(function(annotation) {
+        collection.drawAnnotations(annotation);
       });
 
     });
   },
 
   drawAnnotations: function(annotation) {
+    var annotation_type = YPet.AnnotationTypes.at(annotation.get('type')),
+        words_len = annotation.get('words').length;
+
     annotation.get('words').each(function(word, word_index) {
-      var annotation_type = YPet.AnnotationTypes.at(annotation.get('type'));
       word.trigger('highlight', {'color': annotation_type.get('color')});
-
-      if(word_index == annotation.get('words').length-1) {
-        word.set('neighbor', true);
-      }
-
+      if(word_index == words_len-1) { word.set('neighbor', true); }
     });
-
   },
 
   add : function(ann) {
@@ -201,7 +199,7 @@ WordView = Backbone.Marionette.ItemView.extend({
    * a span in the paragraph */
   events : {
     'mousedown' : 'mousedown',
-    'mouseover' : 'mousehover',
+    'mouseover' : 'mouseover',
     'mouseup'   : 'mouseup',
   },
 
@@ -212,7 +210,9 @@ WordView = Backbone.Marionette.ItemView.extend({
       if(this.model.get('latest')) {
         this.model.trigger('highlight', {'color': '#7FE5FF'});
       }
-      if(options.force) { this.model.trigger('highlight', {'color': '#fff'}); }
+      if(options.force) {
+        this.model.trigger('highlight', {'color': '#fff'});
+      }
     });
     this.listenTo(this.model, 'highlight', function(options) {
       this.$el.css({'backgroundColor': options.color});
@@ -222,17 +222,19 @@ WordView = Backbone.Marionette.ItemView.extend({
   /* Triggers the proper class assignment
    * when the word <span> is redrawn */
   onRender : function() {
-    this.renderingClassSetting('neighbor');
+    this.$el.css({'margin-right': this.model.get('neighbor') ? '5px' : '0px'});
   },
 
   /* When clicking down, make sure to keep track
    * that that word has been the latest interacted
    * element */
-  mousedown : function() {
+  mousedown : function(evt) {
+    evt.stopPropagation();
     this.model.set({'latest': 1});
   },
 
-  mousehover : function(evt) {
+  mouseover : function(evt) {
+    evt.stopPropagation();
     var word = this.model,
         words = word.collection;
 
@@ -243,7 +245,6 @@ WordView = Backbone.Marionette.ItemView.extend({
       /* If the hover doesn't proceed in ordered fashion
        * we need to "fill in the blanks" between the words */
       var current_word_idx = words.indexOf(word);
-      /* (TODO) Cache this */
       var first_word_idx = words.indexOf( words.find(function(word) { return word.get('latest') == 1; }) );
 
       /* Select everything from the starting to the end without
@@ -256,7 +257,15 @@ WordView = Backbone.Marionette.ItemView.extend({
        * from the current selection, remove those */
       var last_selection_indexes = _.map(words.reject(function(word) { return word.get('latest') == null; }), function(word) { return words.indexOf(word); });
       var remove_indexes = _.difference(last_selection_indexes, selection_indexes);
-      _.each(remove_indexes, function(idx) { words.at(idx).set('latest', null, {'force': true}); });
+
+      var word,
+          ann;
+      _.each(remove_indexes, function(idx) {
+        word = words.at(idx);
+        word.set('latest', null, {'force': true});
+        ann = word.get('parentAnnotation');
+        if(ann) { ann.collection.drawAnnotations(ann); }
+      });
 
     }
   },
@@ -271,9 +280,9 @@ WordView = Backbone.Marionette.ItemView.extend({
       word.get('parentAnnotation').toggleType();
     } else {
       /* if selection includes an annotation, delete that one */
-      _.each(selected, function(word) {
-        if(word.get('parentAnnotation')) {
-          word.get('parentAnnotation').destroy();
+      _.each(selected, function(w) {
+        if(w.get('parentAnnotation')) {
+          w.get('parentAnnotation').destroy();
         }
       })
       word.get('parentDocument').get('annotations').create({kind: 0, words: selected});
@@ -285,11 +294,6 @@ WordView = Backbone.Marionette.ItemView.extend({
   /* Adds the actual class to the element (can't
    * do in the template) so must manually add */
   renderingClassSetting : function(attrCheck) {
-    if( this.model.get(attrCheck) ) {
-      this.$el.addClass(attrCheck);
-    } else {
-      this.$el.removeClass(attrCheck);
-    }
   }
 
 });
@@ -299,9 +303,42 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
   tagName   : 'p',
   className : 'paragraph',
   events : {
+    'mousedown': 'startSideCapture',
+    'mousemove': 'startHoverCapture',
     'mouseup': 'captureAnnotation',
     'mouseleave': 'captureAnnotation',
   },
+
+  outsideBox: function(evt) {
+    var x = evt.pageX,
+        y = evt.pageY;
+
+    var obj;
+    var spaces = this.children.map(function(view) {
+      obj = view.$el.offset();
+      obj.bottom = obj.top + view.$el.height();
+      obj.right = obj.left + view.$el.width();
+      return obj;
+    });
+
+    return (_.first(spaces).left > x || x > _.max(_.pluck(spaces, 'right'))) || (_.first(spaces).top > y || y > _.last(spaces).bottom);
+  },
+
+  startSideCapture: function(evt) {
+    if(this.outsideBox(evt)) {
+      var closest_view = this.getClosestWord(evt);
+      if(closest_view) { closest_view.$el.trigger('mousedown'); }
+    }
+  },
+
+  timedHover: _.throttle(function(evt) {
+    if(this.outsideBox(evt)) {
+      var closest_view = this.getClosestWord(evt);
+      if(closest_view) { closest_view.$el.trigger('mouseover'); }
+    }
+  }, 100),
+
+  startHoverCapture: function(evt) { this.timedHover(evt); },
 
   captureAnnotation: function(evt) {
     var selection = this.collection.filter(function(word) { return word.get('latest') != null; });
@@ -310,5 +347,43 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
       var model = selection[0];
       this.children.find(function(view, idx) { return model.get('start') == view.model.get('start'); }).$el.trigger('mouseup');
     }
-  }
+  },
+
+  getClosestWord: function(evt) {
+    var x = evt.pageX,
+        y = evt.pageY,
+        closest_view = null,
+        word_offset,
+        dx, dy,
+        distance, minDistance,
+        left, top, right, bottom;
+
+    this.children.each(function(view, idx) {
+      word_offset = view.$el.offset();
+      left = word_offset.left;
+      top = word_offset.top;
+      right = left + view.$el.width();
+      bottom = top + view.$el.height();
+
+      var offsets = [
+        [left, top],
+        [right, top],
+        [left, bottom],
+        [right, bottom]
+      ];
+
+      for(off in offsets) {
+        dx = offsets[off][0] - x;
+        dy = offsets[off][1] - y;
+        distance = Math.sqrt((dx*dx) + (dy*dy));
+        if (minDistance === undefined || distance < minDistance) {
+          minDistance = distance;
+          closest_view = view;
+        }
+      }
+
+    });
+    return closest_view;
+  },
+
 });

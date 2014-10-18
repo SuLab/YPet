@@ -1,7 +1,10 @@
 var SingleLink = Backbone.Marionette.ItemView.extend({
   tagName: 'li',
   className: 'list-group-item',
-  template: _.template('<div class="swatch" style="background-color:<%-color%>"></div> <%-name%>')
+  template: _.template('<p class="text-center annotation-type"><%-name%></p>'),
+  onRender: function() {
+    this.$el.css({'backgroundColor': this.model.get('color')});
+  }
 });
 
 var ListView = Backbone.Marionette.CollectionView.extend({
@@ -17,7 +20,7 @@ var SingleAnnotation = Backbone.Marionette.ItemView.extend({
             'type': YPet.AnnotationTypes.at( this.model.get('type') ).get('name') }
   },
 
-  template: _.template('<%-text%> <span class="badge"><%-type%></span>'),
+  template: _.template('<div class="row"><div class="col-xs-9"><p class="annotation-text"><%-text%></p></div><div class="col-xs-3"><p class="text-center annotation-type"><%-type%></p></div></div>'),
   initialize : function(options) {
     this.listenTo(this.model, 'change:type', this.render);
   }
@@ -41,9 +44,9 @@ YPet.addInitializer(function(options) {
   $text.remove();
 
   YPet.AnnotationTypes = new AnnotationTypeList([
-    {name: 'Disease', color: '#00ccff'},
-    {name: 'Gene', color: '#22A301'},
-    {name: 'Protein', color: 'yellow'}
+    {name: 'Person', color: '#A4DEAB'},
+    {name: 'Place', color: '#DCDDD8'},
+    {name: 'Thing', color: '#E64C66'}
   ]);
 
   (new ListView({
