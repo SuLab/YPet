@@ -35,12 +35,12 @@ YPet.addInitializer(function(options) {
   /* Assign views to Region */
   YPet.addRegions({
     'p1': '#container-to-place-p1',
-    'p2': '#container-to-place-p1'
+    'p2': '#container-to-place-p2'
   });
 
   /* Put the new Annotation views on the page */
   YPet['p1'].show( new WordCollectionView({collection: p1.get('words')}) );
-  YPet['p2'].show( new WordCollectionView({collection: p1.get('words')}) );
+  YPet['p2'].show( new WordCollectionView({collection: p2.get('words')}) );
 });
 
 YPet.start();
@@ -68,9 +68,9 @@ YPet['p1'].currentView.collection.parentDocument.get('annotations').on('change',
 });
 ```
 
-## About 
+## About
 
-[YPet](https://github.com/SuLab/YPet) was developed to rapidly annotate bio-medical literature for [Mark2Cure](http://mark2cure.org) at [The Su Lab](http://sulab.org/).
+[YPet](https://github.com/SuLab/YPet) was developed to rapidly annotate bio-medical literature for [Mark2Cure](http://mark2cure.org) at [The Su Lab](http://sulab.org/) by [Max Nanis](http://twitter.com/x0xMaximus).
 
 
 ![The Scripps Research Institute](http://www.scripps.edu/files/images/logo120.png "The Scripps Research Institute")
@@ -83,7 +83,7 @@ YPet['p1'].currentView.collection.parentDocument.get('annotations').on('change',
 
 If you'd like to support please fork and contribute. We're particularly looking forward on the following topics:
 
-* Allow support for phrase tags: `<strong>`, `<em>`, `<code>`, et cetera… 
+* Allow support for phrase tags: `<strong>`, `<em>`, `<code>`, et cetera…
 * Lessen dependency requirements
 * Improve setup process (reduce steps required) for parties wanting to leverage [YPet](https://github.com/SuLab/YPet)
 * Continue to study user behavior to improve confusion that may lead to frustration
