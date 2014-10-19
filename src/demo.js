@@ -16,8 +16,7 @@ var SingleAnnotation = Backbone.Marionette.ItemView.extend({
   tagName: 'li',
   className: 'list-group-item',
   templateHelpers: function(a) {
-    return {'text': this.model.getText(),
-            'type': YPet.AnnotationTypes.at( this.model.get('type') ).get('name') }
+    return {'type': YPet.AnnotationTypes.at( this.model.get('type') ).get('name') }
   },
 
   template: _.template('<div class="row"><div class="col-xs-9"><p class="annotation-text"><%-text%></p></div><div class="col-xs-3"><p class="text-center annotation-type"><%-type%></p></div></div>'),
@@ -35,18 +34,13 @@ var ListAnnotationView = Backbone.Marionette.CollectionView.extend({
 /*
  * Init
  */
-YPet = new Backbone.Marionette.Application();
-
 YPet.addInitializer(function(options) {
-  var $text = $('p.paragraph');
-  p = new Paragraph({'text': $text.html()});
-  p.parseText();
-  $text.remove();
+  var p1 = new Paragraph({'text': $('p.paragraph').html()});
 
   YPet.AnnotationTypes = new AnnotationTypeList([
     {name: 'Person', color: '#A4DEAB'},
-    {name: 'Place', color: '#DCDDD8'},
-    {name: 'Thing', color: '#E64C66'}
+    {name: 'Place', color: 'PowderBlue'},
+    {name: 'Thing', color: 'rgb(0, 180, 200)'}
   ]);
 
   (new ListView({
@@ -55,17 +49,17 @@ YPet.addInitializer(function(options) {
   })).render();
 
   (new ListAnnotationView({
-    collection: p.get('annotations'),
+    collection: p1.get('annotations'),
     el: '.annotation-list'
   })).render();
 
 
   /* Assign View to Region */
   YPet.addRegions({
-    text: '#target',
+    'p1': '#target',
   });
-  var view = new WordCollectionView({collection: p.get('words')});
-  YPet.text.show( view );
+
+  YPet['p1'].show( new WordCollectionView({collection: p1.get('words')}) );
 });
 
 YPet.start();

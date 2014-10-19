@@ -8,47 +8,49 @@
         <link rel='stylesheet' href='main.css'>
     </head>
     <body>
-    <a href="https://github.com/sulab/YPet"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+      <a href="https://github.com/sulab/YPet"><img style="position: fixed; top: 0; right: 0; border: 0; z-index: 999;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+      <p id="credits">By <a href="http://twitter.com/x0xMaximus" target="_blank">Max Nanis</a><br>at <a href="http://sulab.org/" target="_blank">The Su Lab</a></p>
 
-      <div class='container head-space-xl'>
+      <div class="container head-space">
 
         <div class="row">
-          <div class="col-sm-10 col-sm-offset-1 head-space">
+          <div class="col-sm-10 col-sm-offset-1">
             <div class="alert alert-info alert-paragraph-box">
-              <h2 class="text-center">Click n' Drag on stuff!</h2>
-              <p class="text-center">YPet is a Javascript library that allows rapid entity selectoin and annotation right in HTML and is fully configurable.</p>
+              <div class="row">
+                <div class="col-sm-8 col-sm-offset-2">
+                  <h2 class="text-center">Click n' Drag on stuff!</h2>
+                  <p class="text-center"><a href="https://github.com/SuLab/YPet">YPet</a> is a Javascript library to rapidly annotate paragraphs of text on websites with the single goal of making the annotation process as fast and simple as possible.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class='row'>
-          <div id="target" class='col-xs-10 col-xs-offset-1'>
-            <p class='paragraph'>There will be no highlights on the eleven o'clock news and no pictures of hairy armed women liberationists and Jackie Onassis blowing her nose . The theme song will not be written by Jim Webb or Francis Scott Key , nor sung by Glen Campbell , Tom Jones , Johnny Cash or Englebert Humperdink . The revolution will not be televised . The revolution will not be right back after a message about a white tornado , white lightning , or white people . You will not have to worry about a dove in your bedroom , a tiger in your tank , or the giant in your toilet bowl . The revolution will not go better with Coke . The revolution will not fight the germs that may cause bad breath . The revolution will put you in the driver's seat . The revolution will not be televised , will not be televised , will not be televised , will not be televised . The revolution will be no re-run brothers ; The revolution will be live .</p>
+        <div class="row">
+          <div id="target" class="col-xs-10 col-xs-offset-1">
+            <p class="paragraph">There will be no highlights on the eleven o'clock news and no pictures of hairy armed women liberationists and Jackie Onassis blowing her nose . The theme song will not be written by Jim Webb or Francis Scott Key , nor sung by Glen Campbell , Tom Jones , Johnny Cash or Englebert Humperdink . The revolution will not be televised . The revolution will not be right back after a message about a white tornado , white lightning , or white people . You will not have to worry about a dove in your bedroom , a tiger in your tank , or the giant in your toilet bowl . The revolution will not go better with Coke . The revolution will not fight the germs that may cause bad breath . The revolution will put you in the driver's seat . The revolution will not be televised , will not be televised , will not be televised , will not be televised . The revolution will be no re-run brothers ; The revolution will be live .</p>
           </div>
         </div>
 
-        <hr />
-        <div class='row'>
-          <div class='col-xs-3 col-xs-offset-1'>
-            <ul class='annotation-type-list list-group'></ul>
+        <div class="row">
+          <div class="col-xs-3 col-xs-offset-1">
+            <ul class="annotation-type-list list-group"></ul>
           </div>
 
-          <div class='col-xs-7'>
-            <ul class='annotation-list list-group'></ul>
+          <div class="col-xs-7">
+            <ul class="annotation-list list-group"></ul>
           </div>
-
-
         </div>
+
       </div>
+      <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+      <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+      <script src="//underscorejs.org/underscore-min.js"></script>
+      <script src="//backbonejs.org/backbone-min.js"></script>
+      <script src="src/backbone-relational.js"></script>
+      <script src="src/backbone.marionette.min.js"></script>
 
-      <script src='//code.jquery.com/jquery-2.1.1.min.js'></script>
-      <script src='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
-      <script src='//underscorejs.org/underscore-min.js'></script>
-      <script src='//backbonejs.org/backbone-min.js'></script>
-      <script src='src/backbone-relational.js'></script>
-      <script src='src/backbone.marionette.min.js'></script>
-
-      <script src='src/ypet.js'></script>
-      <script src='src/demo.js'></script>
+      <script src="src/ypet.js"></script>
+      <script src="src/demo.js"></script>
    </body>
 </html>

@@ -30,7 +30,8 @@ Annotation = Backbone.RelationalModel.extend({
      * we can start them all off at 0 and not need to
      * mix in a null type */
     type: 0,
-    cache_text: '',
+    text: '',
+    start: null,
   },
 
   sync: function () { return false; },
@@ -47,26 +48,6 @@ Annotation = Backbone.RelationalModel.extend({
       includeInJSON: false,
     }
   }],
-
-  getText : function() {
-    /* Retrieves back the full text of the Annotation
-     * based on the words that compose the Annotation. */
-    var words = this.get('words');
-    if(words.length) {
-      return words.pluck('text').join(' ');
-    } else {
-      return this.get('cache_text');
-    }
-  },
-
-  getStart : function() {
-    var words = this.get('words');
-    if(words.length) {
-      return words.first().get('start');
-    } else {
-      return false;
-    }
-  },
 
   toggleType : function() {
     /* Removes (if only 1 Annotation type) or changes
@@ -95,7 +76,8 @@ AnnotationList = Backbone.Collection.extend({
 
   initialize : function(options) {
     this.listenTo(this, 'add', function(annotation) {
-      annotation.set('cache_text', annotation.getText());
+      annotation.set('text', annotation.get('words').pluck('text').join(' '));
+      annotation.set('start', annotation.get('words').first().get('start'));
       this.drawAnnotations(annotation);
     });
 
@@ -151,7 +133,7 @@ Paragraph = Backbone.RelationalModel.extend({
 
     reverseRelation : {
       key : 'parentDocument',
-      includeInJSON: true,
+      includeInJSON: false,
     }
   }, {
     type: 'HasMany',
@@ -168,11 +150,10 @@ Paragraph = Backbone.RelationalModel.extend({
 
   /* Required step after attaching YPet to a <p> to
    * extract the individual words */
-  parseText : function() {
-    var self = this,
-        step = 0,
+  initialize : function(options) {
+    var step = 0,
         length = 0,
-        words = _.map( self.get('text').split(/\s+/) , function(word) {
+        words = _.map(options.text.split(/\s+/) , function(word) {
           length = word.length;
           step = step + length + 1;
           return {
@@ -181,10 +162,8 @@ Paragraph = Backbone.RelationalModel.extend({
           }
         });
 
-      _.each(self.get('words'), function(word) {
-        word.destroy();
-      });
-      self.get('words').add(words);
+      this.get('words').each(function(word) { word.destroy(); });
+      this.get('words').add(words);
   },
 });
 
@@ -285,7 +264,7 @@ WordView = Backbone.Marionette.ItemView.extend({
           w.get('parentAnnotation').destroy();
         }
       })
-      word.get('parentDocument').get('annotations').create({kind: 0, words: selected});
+      word.get('parentDocument').get('annotations').create({words: selected});
     };
 
     words.each(function(word) { word.set('latest', null); });
@@ -387,3 +366,10 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
   },
 
 });
+
+YPet = new Backbone.Marionette.Application();
+YPet.AnnotationTypes = new AnnotationTypeList([
+  {name: 'Disease', color: '#00ccff'},
+  {name: 'Gene', color: '#22A301'},
+  {name: 'Protein', color: 'yellow'}
+]);

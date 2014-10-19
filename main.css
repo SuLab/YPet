@@ -1,4 +1,4 @@
-.head-space-xl { margin-top: 60px; }
+.head-space { margin-top: 20px; }
 
 p.paragraph {
   font-family: 'Palatino Linotype', 'Book Antiqua', 'Palatino', 'serif';
@@ -40,4 +40,12 @@ p.paragraph span:hover {
   font-size: 1.4em;
   margin: 0px;
   letter-spacing: 4px;
+}
+
+#credits {
+  position: fixed;
+  bottom: 6px;
+  left: 20px;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300;
 }
