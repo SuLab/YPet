@@ -1,7 +1,8 @@
+Date.now = Date.now || function() { return +new Date; };
+
 /*
  *  Models & Collections
  */
-
 Word = Backbone.RelationalModel.extend({
   /* A Word model repersents each tokenized word present
    * in the paragraph YPet is attached to. */
@@ -219,7 +220,7 @@ WordView = Backbone.Marionette.ItemView.extend({
 
     /* You're dragging if another word has a latest timestamp */
     if(_.compact(words.pluck('latest')).length) {
-      if(word.get('latest') == null) { word.set({'latest': Date.now()}); }
+      if(_.isNull(word.get('latest'))) { word.set({'latest': Date.now()}); }
 
       /* If the hover doesn't proceed in ordered fashion
        * we need to "fill in the blanks" between the words */
@@ -234,7 +235,7 @@ WordView = Backbone.Marionette.ItemView.extend({
 
       /* If there are extra word selections up or downstream
        * from the current selection, remove those */
-      var last_selection_indexes = _.map(words.reject(function(word) { return word.get('latest') == null; }), function(word) { return words.indexOf(word); });
+      var last_selection_indexes = _.map(words.reject(function(word) { return _.isNull(word.get('latest')); }), function(word) { return words.indexOf(word); });
       var remove_indexes = _.difference(last_selection_indexes, selection_indexes);
 
       var word,
@@ -320,7 +321,7 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
   startHoverCapture: function(evt) { this.timedHover(evt); },
 
   captureAnnotation: function(evt) {
-    var selection = this.collection.filter(function(word) { return word.get('latest') != null; });
+    var selection = this.collection.reject(function(word) { return _.isNull(word.get('latest')); });
     if(selection.length) {
       /* Doesn't actually matter which one */
       var model = selection[0];

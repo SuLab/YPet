@@ -7,7 +7,7 @@
 * Don't enforce any DOM requirements, allow native functionality on any paragraph tag to respect page resizing or CSS styles.
 * Allow rapid classification of annotation types without right mouse clicks.
 
-for the single goal of <strong>making the annotation process as fast and simple as possible</strong>. An [online demo](http://sulab.org/demos/YPet/) is available to play with.
+for the goal of <strong>making the annotation process as fast and simple as possible</strong>. An [online demo](http://sulab.org/demos/YPet/) is available to play with.
 
 Example of behavior:
 
@@ -25,14 +25,14 @@ YPet.addInitializer(function(options) {
   var p1 = new Paragraph({'text': $('p#some-paragraph').html()});
   var p2 = new Paragraph({'text': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tincidunt tempus lorem, quis sollicitudin lectus pretium nec. Ut non enim.'});
 
+  /* Configure the # and colors of Annotation types (minimum 1 required) */
   YPet.AnnotationTypes = new AnnotationTypeList([
     {name: 'Person', color: '#A4DEAB'},
     {name: 'Place', color: 'PowderBlue'},
     {name: 'Thing', color: 'rgb(0, 180, 200)'}
   ]);
 
-
-  /* Assign View to Region */
+  /* Assign views to Region */
   YPet.addRegions({
     'p1': '#container-to-place-p1',
     'p2': '#container-to-place-p1'
@@ -88,3 +88,4 @@ If you'd like to support please fork and contribute. We're particularly looking 
 * Improve setup process (reduce steps required) for parties wanting to leverage [YPet](https://github.com/SuLab/YPet)
 * Continue to study user behavior to improve confusion that may lead to frustration
 * Continue to improve performance to increase speed and prevent lagging
+* JSLint pride
