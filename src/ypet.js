@@ -269,11 +269,6 @@ WordView = Backbone.Marionette.ItemView.extend({
     };
 
     words.each(function(word) { word.set('latest', null); });
-  },
-
-  /* Adds the actual class to the element (can't
-   * do in the template) so must manually add */
-  renderingClassSetting : function(attrCheck) {
   }
 
 });
