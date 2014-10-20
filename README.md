@@ -2,7 +2,7 @@
 
 [YPet](https://github.com/SuLab/YPet) is a Javascript library built in [Marionette.js](http://marionettejs.com/) to rapidly annotate paragraphs of text on websites. The project aims to rethink HTML text annotation, primarily focused on biocuration and adheres to the following rules:
 
-* Limit the possiblity for damanged annotations, individual letters are not desired.
+* Limit the possibility for damaged annotations, individual letters are not desired.
 * Allow rapid span highlighting to prevent broken single-word annotations.
 * Don't enforce any DOM requirements, allow native functionality on any paragraph tag to respect page resizing or CSS styles.
 * Allow rapid classification of annotation types without right mouse clicks.
