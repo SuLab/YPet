@@ -289,13 +289,14 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
         y = evt.pageY;
 
     var obj;
-    var spaces = this.children.map(function(view) {
+    var spaces = _.compact(this.children.map(function(view) {
       obj = view.$el.offset();
-      obj.bottom = obj.top + view.$el.height();
-      obj.right = obj.left + view.$el.width();
-      return obj;
-    });
-
+      if(obj.top && obj.left) {
+        obj.bottom = obj.top + view.$el.height();
+        obj.right = obj.left + view.$el.width();
+        return obj;
+      }
+    }));
     return (_.first(spaces).left > x || x > _.max(_.pluck(spaces, 'right'))) || (_.first(spaces).top > y || y > _.last(spaces).bottom);
   },
 
