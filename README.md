@@ -49,7 +49,7 @@ YPet.start();
 
 ### Events
 
-If you want to live track annotations as they're put on the paragraph (to save, send to a server, or do somethign else with) the following callbacks and serialization methods are available.
+If you want to live track annotations as they're put on the paragraph (to save, send to a server, or do something else with) the following callbacks and serialization methods are available.
 
 Each annotation is returned as an object with a `start` and `text` attribute, as well as an array of children words.
 
