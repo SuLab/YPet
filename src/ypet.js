@@ -4,7 +4,7 @@ Date.now = Date.now || function() { return +new Date; };
  *  Models & Collections
  */
 Word = Backbone.RelationalModel.extend({
-  /* A Word model repersents each tokenized word present
+  /* A Word model represents each tokenized word present
    * in the paragraph YPet is attached to. */
   defaults: {
     text: '',
