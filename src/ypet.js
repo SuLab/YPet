@@ -4,7 +4,7 @@ Date.now = Date.now || function() { return +new Date; };
  *  Models & Collections
  */
 Word = Backbone.RelationalModel.extend({
-  /* A Word model repersents each tokenized word present
+  /* A Word model represents each tokenized word present
    * in the paragraph YPet is attached to. */
   defaults: {
     text: '',
@@ -190,7 +190,7 @@ WordView = Backbone.Marionette.ItemView.extend({
     'mouseup'   : 'mouseup',
   },
 
-  /* Setup even listeners for word spans */
+  /* Setup event listeners for word spans */
   initialize : function(options) {
     this.listenTo(this.model, 'change:neighbor', this.render);
     this.listenTo(this.model, 'change:latest', function(model, value, options) {
