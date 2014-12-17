@@ -75,10 +75,17 @@ AnnotationList = Backbone.Collection.extend({
   model: Annotation,
   url: '/api/v1/annotations',
 
+  sanitizeAnnotation : function(full_str, start) {
+    /* Return the cleaned string and the (potentially) new start position */
+    var str = _.str.clean(full_str).replace(/^[^a-z\d]*|[^a-z\d]*$/gi, '');
+    return {'text':str, 'start': start+full_str.indexOf(str)};
+  },
+
   initialize : function(options) {
     this.listenTo(this, 'add', function(annotation) {
-      annotation.set('text', annotation.get('words').pluck('text').join(' '));
-      annotation.set('start', annotation.get('words').first().get('start'));
+      var ann = this.sanitizeAnnotation(annotation.get('words').pluck('text').join(' '), annotation.get('words').first().get('start'));
+      annotation.set('text', ann.text);
+      annotation.set('start', ann.start);
       this.drawAnnotations(annotation);
     });
 
