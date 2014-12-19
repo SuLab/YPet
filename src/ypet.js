@@ -160,18 +160,21 @@ Paragraph = Backbone.RelationalModel.extend({
    * extract the individual words */
   initialize : function(options) {
     var step = 0,
-        length = 0,
-        words = _.map(options.text.split(/\s+/) , function(word) {
-          length = word.length;
-          step = step + length + 1;
-          return {
+        space_padding,
+        word_obj,
+        text = options.text,
+        words = _.map(_.str.words( text ), function(word) {
+          word_obj = {
             'text': word,
-            'start': step - length - 1,
+            'start': step,
           }
+          space_padding = (text.substring(step).match(/\s+/g) || [""])[0].length;
+          step = step + word.length + space_padding;
+          return word_obj;
         });
 
-      this.get('words').each(function(word) { word.destroy(); });
-      this.get('words').add(words);
+    this.get('words').each(function(word) { word.destroy(); });
+    this.get('words').add(words);
   },
 });
 
