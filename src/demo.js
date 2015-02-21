@@ -19,7 +19,7 @@ var SingleAnnotation = Backbone.Marionette.ItemView.extend({
     return {'type': YPet.AnnotationTypes.at( this.model.get('type') ).get('name') }
   },
 
-  template: _.template('<div class="row"><div class="col-xs-9"><p class="annotation-text"><%-text%></p></div><div class="col-xs-3"><p class="text-center annotation-type"><%-type%></p></div></div>'),
+  template: _.template('<div class="row"><div class="col-xs-8"><p class="annotation-text"><%-text%></p></div><div class="col-xs-1"><p><%-start%></p></div><div class="col-xs-3"><p class="text-center annotation-type"><%-type%></p></div></div>'),
   initialize : function(options) {
     this.listenTo(this.model, 'change:type', this.render);
   }
