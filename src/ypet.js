@@ -219,6 +219,7 @@ WordView = Backbone.Marionette.ItemView.extend({
    * that that word has been the latest interacted
    * element */
   mousedown : function(evt) {
+    console.log(evt, this);
     evt.stopPropagation();
     this.model.set({'latest': 1});
   },
@@ -288,7 +289,7 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
   tagName   : 'p',
   className : 'paragraph',
   events : {
-    'mousedown': 'startSideCapture',
+    'mousedown': 'startCapture',
     'mousemove': 'startHoverCapture',
     'mouseup': 'captureAnnotation',
     'mouseleave': 'captureAnnotation',
@@ -314,11 +315,9 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
     return evt.pageX <= this.children.first().$el.offset().left;
   },
 
-  startSideCapture: function(evt) {
-    if(this.outsideBox(evt)) {
-      var closest_view = this.getClosestWord(evt);
-      if(closest_view) { closest_view.$el.trigger('mousedown'); }
-    }
+  startCapture: function(evt) {
+    var closest_view = this.getClosestWord(evt);
+    if(closest_view) { closest_view.$el.trigger('mousedown'); }
   },
 
   timedHover: _.throttle(function(evt) {
