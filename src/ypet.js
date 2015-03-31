@@ -113,8 +113,21 @@ AnnotationList = Backbone.Collection.extend({
         words_len = annotation.get('words').length;
 
     annotation.get('words').each(function(word, word_index) {
-      word.trigger('highlight', {'color': annotation_type.get('color')});
-      if(word_index == words_len-1) { word.set('neighbor', true); }
+      if(annotation.get('opponent')) {
+        var last_ann_word = annotation.get('words').last();
+        console.log(last_ann_word);
+
+        /* Is there a gap because of a user annotation? */
+        if(word_index == words_len-1) {}
+        /* Is there a ending that needs to be trimmed b/c no right margin */
+
+        word.trigger('underline', {'color': annotation_type.get('color')});
+
+      } else {
+        word.trigger('highlight', {'color': annotation_type.get('color')});
+        if(word_index == words_len-1) { word.set('neighbor', true); }
+      }
+
     });
   },
 
@@ -143,6 +156,18 @@ Paragraph = Backbone.RelationalModel.extend({
       key : 'parentDocument',
       includeInJSON: false,
     }
+  }, {
+      type: 'HasMany',
+      key: 'opponent_annotations',
+
+      relatedModel: Annotation,
+      collectionType: AnnotationList,
+
+      reverseRelation : {
+            /* This needs a sep key as the same model above */
+            key : '_parentDocument',
+            includeInJSON: false,
+          }
   }, {
     type: 'HasMany',
     key: 'words',
@@ -207,6 +232,23 @@ WordView = Backbone.Marionette.ItemView.extend({
     this.listenTo(this.model, 'highlight', function(options) {
       this.$el.css({'backgroundColor': options.color});
     });
+
+    this.listenTo(this.model, 'underline', function(options) {
+      var $container = this.$el.parent(),
+      pos = this.$el.position();
+
+      var yaxis = pos.top + this.$el.height() + 2;
+      var width = this.$el.width();
+
+      $container.append('<div style=" \
+        position: absolute; \
+        height: 4px; \
+        width: '+ width +'px; \
+        top: '+ yaxis +'px; \
+        left: '+ pos.left +'px; \
+        background-color: '+ d3.rgb(options.color).darker(2) +';"></div>');
+    });
+
  },
 
   /* Triggers the proper class assignment
@@ -219,7 +261,6 @@ WordView = Backbone.Marionette.ItemView.extend({
    * that that word has been the latest interacted
    * element */
   mousedown : function(evt) {
-    console.log(evt, this);
     evt.stopPropagation();
     this.model.set({'latest': 1});
   },
@@ -293,6 +334,47 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
     'mousemove': 'startHoverCapture',
     'mouseup': 'captureAnnotation',
     'mouseleave': 'captureAnnotation',
+  },
+
+  onRender : function() {
+    this.drawBioC(this.options.passage_json);
+  },
+
+  drawBioC : function(passage, opponent) {
+    opponent = opponent || false
+    var words = this.collection;
+
+    if(passage) {
+      var annotations = _.flatten([passage.annotation]);
+      var passage_offset = +passage.offset;
+
+      // Fragile pulling infon index like that
+      var user_ids = _.uniq(_.map(annotations, function(v) { return v.infon[2]['#text']; }));
+      if(user_ids.length != 1) { console.log('throw error'); }
+      var user_id = +user_ids[0];
+
+      _.each(annotations, function(annotation, annotation_idx) {
+        var ann_start = +annotation.location['@offset'] - passage_offset;
+        var ann_length = +annotation.location['@length'];
+        var ann_type = +annotation.infon[3]['#text'];
+
+        var selected = words.filter(function(word) {
+          return (word.get('start') == ann_start) || (word.get('start') > ann_start && word.get('start') < ann_start+ann_length );
+        });
+
+        if(selected.length) {
+          if(opponent) {
+            var opp_anns = words.parentDocument.get('opponent_annotations');
+            opp_anns.create({words: selected, type: ann_type, opponent: opponent});
+          } else {
+            var anns = words.parentDocument.get('annotations');
+            anns.create({words: selected, type: ann_type, opponent: opponent});
+          }
+        }
+
+      });
+    }
+
   },
 
   outsideBox: function(evt) {

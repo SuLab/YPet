@@ -12,30 +12,38 @@ var ListView = Backbone.Marionette.CollectionView.extend({
   childView: SingleLink
 });
 
-var SingleAnnotation = Backbone.Marionette.ItemView.extend({
-  tagName: 'li',
-  className: 'list-group-item',
-  templateHelpers: function(a) {
-    return {'type': YPet.AnnotationTypes.at( this.model.get('type') ).get('name') }
-  },
-
-  template: _.template('<div class="row"><div class="col-xs-8"><p class="annotation-text"><%-text%></p></div><div class="col-xs-1"><p><%-start%></p></div><div class="col-xs-3"><p class="text-center annotation-type"><%-type%></p></div></div>'),
-  initialize : function(options) {
-    this.listenTo(this.model, 'change:type', this.render);
-  }
-});
-
-var ListAnnotationView = Backbone.Marionette.CollectionView.extend({
-  tagName: 'ul',
-  childView: SingleAnnotation
-});
-
 
 /*
  * Init
  */
 YPet.addInitializer(function(options) {
-  var p1 = new Paragraph({'text': $('p.paragraph').html()});
+
+  /* data fetches the original document and annotations */
+  $.getJSON('data/data.json', function( data ) {
+    var passages = data.collection.document.passage;
+    var regions = {};
+    _.each(passages, function(passage, passage_idx) {
+      regions[passage_idx] = '#'+passage.infon[2]['#text'];
+    });
+    YPet.addRegions(regions);
+
+    _.each(passages, function(passage, passage_idx) {
+      var p = new Paragraph({'text': passage.text});
+      YPet[passage_idx].show( new WordCollectionView({
+        collection: p.get('words'),
+        passage_json: passage,
+        bioc_json: data
+      }) );
+    });
+  });
+
+  /* partner fetches the same document and but with partner annotations */
+  $.getJSON('data/partner.json', function( data ) {
+    var passages = data.collection.document.passage;
+    _.each(passages, function(passage, passage_idx) {
+      YPet[passage_idx].currentView.drawBioC(passage, true);
+    });
+  });
 
   YPet.AnnotationTypes = new AnnotationTypeList([
     {name: 'Person', color: '#A4DEAB'},
@@ -48,18 +56,6 @@ YPet.addInitializer(function(options) {
     el: '.annotation-type-list'
   })).render();
 
-  (new ListAnnotationView({
-    collection: p1.get('annotations'),
-    el: '.annotation-list'
-  })).render();
-
-
-  /* Assign View to Region */
-  YPet.addRegions({
-    'p1': '#target',
-  });
-
-  YPet['p1'].show( new WordCollectionView({collection: p1.get('words')}) );
 });
 
 YPet.start();
