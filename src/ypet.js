@@ -111,24 +111,45 @@ AnnotationList = Backbone.Collection.extend({
   drawAnnotations: function(annotation) {
     var annotation_type = YPet.AnnotationTypes.at(annotation.get('type')),
         words_len = annotation.get('words').length;
+    var parent_document = this.parentDocument || this._parentDocument;
 
+    /*console.log('------', annotation.get('text') ,'--------');*/
+
+    /* Draw all the basic background or underlines */
     annotation.get('words').each(function(word, word_index) {
       if(annotation.get('opponent')) {
-        var last_ann_word = annotation.get('words').last();
-        console.log(last_ann_word);
-
-        /* Is there a gap because of a user annotation? */
-        if(word_index == words_len-1) {}
-        /* Is there a ending that needs to be trimmed b/c no right margin */
-
         word.trigger('underline', {'color': annotation_type.get('color')});
-
       } else {
         word.trigger('highlight', {'color': annotation_type.get('color')});
         if(word_index == words_len-1) { word.set('neighbor', true); }
       }
-
     });
+
+
+
+    if(annotation.get('opponent')) {
+      var words = annotation.get('words')
+      var author_annotations = parent_document.get('annotations');
+
+      var anns = []
+      author_annotations.each(function(main_ann) {
+        if(main_ann.get('words').contains(words.first()) || main_ann.get('words').contains(words.last())) {
+          anns.push(main_ann.cid);
+        }
+      });
+
+      if(_.uniq(anns).length > 1) {
+        /* 2 Different Parent Annotations */
+        words.each(function(word) {
+          if(word == words.last()) {
+            word.trigger('underline-space', {'color': '#fff', 'last_word': true});
+          } else {
+            word.trigger('underline-space', {'color': annotation_type.get('color'), 'last_word': false});
+          }
+        });
+      }
+    }
+
   },
 
   add : function(ann) {
@@ -247,6 +268,27 @@ WordView = Backbone.Marionette.ItemView.extend({
         top: '+ yaxis +'px; \
         left: '+ pos.left +'px; \
         background-color: '+ d3.rgb(options.color).darker(2) +';"></div>');
+    });
+
+    this.listenTo(this.model, 'underline-space', function(options) {
+      var $container = this.$el.parent(),
+      pos = this.$el.position(),
+      color = d3.rgb(options.color).darker(2);
+
+      var yaxis = pos.top + this.$el.height() + 2;
+      var width = this.$el.width();
+      if(options.last_word) {
+        width = width - 5;
+        color = '#fff';
+      }
+
+      $container.append('<div style=" \
+        position: absolute; \
+        height: 4px; \
+        width: 5px; \
+        top: '+ yaxis +'px; \
+        left: '+ (pos.left+width) +'px; \
+        background-color: '+ color +';"></div>');
     });
 
  },
