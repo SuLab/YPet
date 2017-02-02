@@ -1,5 +1,5 @@
-var html_fixture = "test_page.html";
-var sources = ["./assert.js"];
+var html_fixture = "./test/test_page.html";
+var sources = ["./test/assert.js"];
 var tests = [];
 
 tests.push(function count_chart_elements () {
