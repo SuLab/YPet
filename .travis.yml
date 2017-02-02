@@ -1,0 +1,4 @@
+before_install:
+    - sudo npm install phantomjs
+
+script: phantomjs runner.js
