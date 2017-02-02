@@ -13,7 +13,7 @@ tests.push(function get_chart_div () {
 })
 
 tests.push(function compare_lists () {
-    assert([1, 3, 5, 3, 7], [1, 3, 5, 7]);
+    assert([1, 3, 5, 7], [1, 3, 5, 7]);
 })
 
 tests.push(function compare_maps () {
