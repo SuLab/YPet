@@ -1,3 +1,7 @@
+"use strict";
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 /*
  * Copyright 2015 Eric Radman
  * Modified by Runjie Guan
@@ -5,9 +9,7 @@
 
 function assert(got, expected, error) {
     if (!deepEq(got, expected)) {
-        throw new Error(`${error || ""} 
-Expected: ${expected}
-Got:      ${got}`);
+        throw new Error((error || "") + " \nExpected: " + expected + "\nGot:      " + got);
     }
 }
 
@@ -17,7 +19,7 @@ Got:      ${got}`);
  */
 
 function deepEq(a, b) {
-    if (typeof a !== typeof b) {
+    if ((typeof a === "undefined" ? "undefined" : _typeof(a)) !== (typeof b === "undefined" ? "undefined" : _typeof(b))) {
         return false;
     }
     if (a instanceof Function) {
@@ -46,3 +48,5 @@ function deepEq(a, b) {
     }
     return true;
 }
+
+//# sourceMappingURL=assert-old.js.map

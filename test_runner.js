@@ -20,11 +20,12 @@ var page = require('webpage').create();
 
 page.onError = function(msg, trace) {
     /* inject a line number into the error message raised by assert() */
-    if (trace.length > 1)
+    if (trace.length > 1) {
         console.error(msg.replace(/: in /,
-            " in line " + (parseInt(trace[1].line)-1) + " of "));
-    else
-        console.error("line " + (parseInt(trace[0].line)-1) + ": " + msg);
+            " in line " + (parseInt(trace[1].line) - 1) + " of "));
+    } else {
+        console.error("line " + (parseInt(trace[0].line) - 1) + ": " + msg);
+    }
     phantom.exit(1);
 };
 
@@ -33,12 +34,12 @@ page.onConsoleMessage = function(msg) {
 };
 
 /* read html_fixture, sources[], tests[] */
-phantom.injectJs('./test/tests.js')
+phantom.injectJs('./test/tests-old.js');
 
 /* test runner */
 
 page.open(html_fixture, function(status) {
-    if( status !== "success" ){
+    if (status !== "success") {
         console.log("Error loading page");
         phantom.exit(1);
     }
@@ -48,8 +49,9 @@ page.open(html_fixture, function(status) {
         page.content = _content;
         /* activate javascript on the refreshed page */
         sources.forEach(function(file) {
-           if (!page.injectJs(file))
+            if (!page.injectJs(file)) {
                 throw new Error("Unable to load '" + file + "'");
+            }
         });
         /* execute test in the page context */
         page.evaluate(test_function);
@@ -59,5 +61,5 @@ page.open(html_fixture, function(status) {
         console.log(tests.length + " tests PASSED");
         phantom.exit(0);
     }, 200);
-    console.log(Array(tests.length+1).join('.'));
+    console.log(Array(tests.length + 1).join('.'));
 });
