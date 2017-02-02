@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - "6.1"
 
-install:
+before_script:
     - sudo npm install phantomjs
 
 script: phantomjs runner.js
