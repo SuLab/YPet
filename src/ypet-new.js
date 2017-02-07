@@ -327,12 +327,12 @@ Paragraph = Backbone.RelationalModel.extend({
         var step = 0,
             space_padding,
             word_obj,
-            text = options.text,
+            text = options.text.replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<'),
             words = _.map(_.str.words(text), function (word) {
                 word_obj = {
                     'text': word,
                     'start': step,
-                }
+                },
                 space_padding = (text.substring(step).match(/\s+/g) || [""])[0].length;
                 step = step + word.length + space_padding;
                 return word_obj;

@@ -8,7 +8,7 @@ YPet.AnnotationTypes = new AnnotationTypeList([
     {name: 'Thing', color: 'rgb(0, 180, 200)'}
 ]);
 
-var p1 = new Paragraph({'text': $('p.paragraph').html()});
+var p1 = new Paragraph({'text': $('p.paragraph').text()});
 
 YPet.getRegion().show(new WordCollectionView({collection: p1.get('words')}));
 
@@ -359,7 +359,7 @@ document._testClickOnValidWords = function() {
     try {
         "use strict";
 
-        console.log("Test clicking on valid words...", "background:#000; color:#fff");
+        console.log("Test clicking on valid words...");
 
         for (var i = 0; i < _ITERATIONS; ++i) {
             var word = _randomElement(_randomElement(_wordList), (elem)=> {
@@ -384,7 +384,7 @@ document._testClickOnInvalidWords = function() {
     try {
         "use strict";
 
-        console.log("Test clicking on invalid words...", "background:#000; color:#fff");
+        console.log("Test clicking on invalid words...");
 
         // Iterate each element instead of randomly choosing
         _.each(_invalidWordList, (word)=> {
@@ -404,7 +404,7 @@ document._testDragSameLine = function() {
     try {
         "use strict";
 
-        console.log("Test dragging the words in the same line ...", "background:#000; color:#fff");
+        console.log("Test dragging the words in the same line ...");
 
         for (var i = 0; i < _ITERATIONS; ++i) {
             (()=> {
@@ -456,7 +456,7 @@ document._testDragDifferentLine = function() {
     try {
         "use strict";
 
-        console.log("Test dragging the words in the different lines ...", "background:#000; color:#fff");
+        console.log("Test dragging the words in the different lines ...");
 
         if (_wordList.length < 2) {
             console.log("The given passage does not have sufficient amount of lines");
@@ -505,7 +505,7 @@ document._testDragOverSelectedWord = function() {
     try {
         "use strict";
 
-        console.log("Test dragging over word selection", "background:#000; color:#fff");
+        console.log("Test dragging over word selection");
 
         for (var i = 0; i < _ITERATIONS; ++i) {
             // Select four words
@@ -528,7 +528,7 @@ document._testDragFromSelectedWord = function() {
     try {
         "use strict";
 
-        console.log("Test dragging from word selection", "background:#000; color:#fff");
+        console.log("Test dragging from word selection");
 
         for (var i = 0; i < _ITERATIONS; ++i) {
             // Select four words
@@ -551,7 +551,7 @@ document._testDragToSelectedWord = function() {
     try {
         "use strict";
 
-        console.log("Test dragging forward to word selection", "background:#000; color:#fff");
+        console.log("Test dragging forward to word selection");
 
         for (var i = 0; i < _ITERATIONS; ++i) {
             // Select four words
@@ -574,7 +574,7 @@ document._testDragInvalidWord = function() {
     try {
         "use strict";
 
-        console.log("Test dragging the words from/to an invalid word ...", "background:#000; color:#fff");
+        console.log("Test dragging the words from/to an invalid word ...");
 
         if (_wordList.length < 2) {
             console.log("The given passage does not have sufficient amount of lines");
@@ -624,7 +624,7 @@ document._testSubmitResults = function() {
     try {
         "use strict";
 
-        console.log("Test submitting the results", "background:#000; color:#fff");
+        console.log("Test submitting the results");
 
         var TYPE = {
                 CLICK_INVALID: undefined,
