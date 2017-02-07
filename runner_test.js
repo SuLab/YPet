@@ -19,7 +19,7 @@
 var page = require('webpage').create();
 
 page.onConsoleMessage = function(msg) {
-    console.log(123 + msg);
+    console.log(msg);
 };
 
 /* read html_fixture, sources[], tests[] */
@@ -54,15 +54,13 @@ page.open(html_fixture, function(status) {
 });
 
 page.onError = function(msg, trace) {
-    console.log("here's an error");
-    console.log(msg);
-    console.log(JSON.stringify(trace));
+    console.error("An error occured");
     /* inject a line number into the error message raised by assert() */
     if (trace.length > 1) {
-        console.error(msg.replace(/: in /,
+        console.log(msg.replace(/: in /,
             " in line " + (parseInt(trace[1].line) - 1) + " of "));
     } else {
-        console.error("line " + (parseInt(trace[0].line) - 1) + ": " + msg);
+        console.log("line " + (parseInt(trace[0].line) - 1) + ": " + msg);
     }
     phantom.exit(1);
 };
