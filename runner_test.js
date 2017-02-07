@@ -55,6 +55,8 @@ page.open(html_fixture, function(status) {
 
 page.onError = function(msg, trace) {
     console.log("here's an error");
+    console.log(msg);
+    console.log(JSON.stringify(trace));
     /* inject a line number into the error message raised by assert() */
     if (trace.length > 1) {
         console.error(msg.replace(/: in /,
@@ -62,10 +64,5 @@ page.onError = function(msg, trace) {
     } else {
         console.error("line " + (parseInt(trace[0].line) - 1) + ": " + msg);
     }
-    phantom.exit(1);
-};
-
-phantom.onError = function(msg) {
-    console.log("Here's another error");
     phantom.exit(1);
 };
