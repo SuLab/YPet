@@ -392,7 +392,7 @@ document._testClickOnInvalidWords = function() {
 
             _assert(lastResponse.type_id, 0, "On invalid word type_id: expect 0, got " + lastResponse.type_id);
             _assert(lastResponse.text.length, 0, "On invalid word text: expect '', got " + lastResponse.text);
-            _assert(lastResponse.words.length, 0, "On invalid word words: expect empty, got " + lastResponse.words);
+            _assert(lastResponse.words.length, 0, "On invalid word length: expect empty, got " + JSON.stringify(lastResponse.words));
         });
     } catch (e) {
         return e.message;
