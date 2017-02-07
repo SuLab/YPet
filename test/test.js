@@ -848,6 +848,27 @@ document._testSubmitResults = function() {
     return "";
 };
 
+function runLocalBrowswerTest() {
+    var tests = [
+        "testInit",
+        "_testClickOnValidWords",
+        "_testClickOnInvalidWords",
+
+        "_testDragSameLine",
+        "_testDragDifferentLine",
+        "_testDragOverSelectedWord",
+        "_testDragFromSelectedWord",
+        "_testDragToSelectedWord",
+
+        "_testDragInvalidWord",
+        "_testSubmitResults"
+    ];
+
+    tests.forEach((t)=> {
+        eval("document." + t + "()")
+    });
+}
+
 /**
  * TO ADD NEW TEST SUITES:
  * The new test cases need to be declared as a property of document, so phantomjs can access it.
