@@ -6,4 +6,4 @@ before_script:
   - npm install phantomjs
 
 script:
-  - phantomjs test_runner.js
+  - phantomjs runner_test.js

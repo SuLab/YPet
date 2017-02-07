@@ -18,19 +18,8 @@
 
 var page = require('webpage').create();
 
-page.onError = function(msg, trace) {
-    /* inject a line number into the error message raised by assert() */
-    if (trace.length > 1) {
-        console.error(msg.replace(/: in /,
-            " in line " + (parseInt(trace[1].line) - 1) + " of "));
-    } else {
-        console.error("line " + (parseInt(trace[0].line) - 1) + ": " + msg);
-    }
-    phantom.exit(1);
-};
-
 page.onConsoleMessage = function(msg) {
-    console.log(msg);
+    console.log(123 + msg);
 };
 
 /* read html_fixture, sources[], tests[] */
@@ -63,3 +52,20 @@ page.open(html_fixture, function(status) {
     }, 200);
     console.log(Array(tests.length + 1).join('.'));
 });
+
+page.onError = function(msg, trace) {
+    console.log("here's an error");
+    /* inject a line number into the error message raised by assert() */
+    if (trace.length > 1) {
+        console.error(msg.replace(/: in /,
+            " in line " + (parseInt(trace[1].line) - 1) + " of "));
+    } else {
+        console.error("line " + (parseInt(trace[0].line) - 1) + ": " + msg);
+    }
+    phantom.exit(1);
+};
+
+phantom.onError = function(msg) {
+    console.log("Here's another error");
+    phantom.exit(1);
+};
