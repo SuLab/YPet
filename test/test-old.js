@@ -239,7 +239,7 @@ function _dragAndTest($dragFrom, $dragTo, $assertFrom, $assertTo) {
     // ${$assertFrom.index()}, $assertTo: ${$assertTo.index()}`);
 
     // Drag forward
-    console.log("   Dragging forward");
+    console.log('   Dragging forward: ' + dragFrom.text() + '[' + dragFrom.index() + '] -> ' + dragTo.text() + '[' + dragTo.index() + ']');
     _simulateDragSelectWords($dragFrom, $dragTo);
 
     _assertSameWords($assertFrom, $assertTo);
