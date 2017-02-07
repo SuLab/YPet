@@ -80,7 +80,7 @@ function _assertSameWord($elem) {
     "use strict";
 
     _assert(lastResponse.type_id, 0, 'Word "' + $elem.text() + '" type_id is not zero');
-    _assert(lastResponse.text, $elem.text(), 'Word "' + $elem.text() + '" doesn\'t match response');
+    _assert(lastResponse.text, $elem.text(), 'Word "' + $elem.text() + '" doesn\'t match response, which is ' + lastResponse.text);
 };
 
 var _assertSameWords = function _assertSameWords($leftElem, $rightElem) {
@@ -239,14 +239,14 @@ function _dragAndTest($dragFrom, $dragTo, $assertFrom, $assertTo) {
     // ${$assertFrom.index()}, $assertTo: ${$assertTo.index()}`);
 
     // Drag forward
-    console.log("   Dragging forward", "background:#888; color:#fff");
+    console.log("   Dragging forward");
     _simulateDragSelectWords($dragFrom, $dragTo);
 
     _assertSameWords($assertFrom, $assertTo);
     _testCycle($assertFrom, $assertTo);
 
     // Drag in opposite direction
-    console.log("   Dragging backward", "background:#888; color:#fff");
+    console.log("   Dragging backward");
     _simulateDragSelectWords($dragTo, $dragFrom);
 
     _assertSameWords($assertFrom, $assertTo);
@@ -824,7 +824,7 @@ document._testSubmitResults = function () {
         // Verify expected against what's fetched
         var got = document.YPet.getView().getRegion(1).currentView.collection.parentDocument.get("annotations").toJSON();
 
-        console.log("   Verifying word length", "background:#888; color:#fff");
+        console.log("   Verifying word length");
         var invalidWords = _.where(got, { "text": "" });
         // console._assert(invalidWords.length === invalidWordLength, `Incorrect invalid word length. Expect
         // ${invalidWordLength}, got ${invalidWords.length}`);
@@ -832,7 +832,7 @@ document._testSubmitResults = function () {
         got = _.difference(got, invalidWords);
         _assert(got.length, expected.length, 'Incorrect word length. Expect ' + expected.length + ', got ' + got.length);
 
-        console.log("   Verifying word content", "background:#888; color:#fff");
+        console.log("   Verifying word content");
         got = _.map(got, function (e) {
             return _.omit(e, ["words", "start"]);
         });
