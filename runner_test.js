@@ -752,8 +752,6 @@ function _sanitize(full_str) {
 var lastResponse = {};
 
 function init() {
-    console.log("hi");
-    return;
     var regions = document.YPet.getView().getRegions();
 
     // For each region, add a new listener to listen to annotation change
@@ -821,11 +819,7 @@ page.open("./test/test_page.html", function(status) {
 
             init();
 
-            // tests.forEach(function(test_function) {
-            //     /* execute test in the page context */
-            //     console.log("Evaluate:" + test_function);
-            //     page.evaluate(test_function);
-            // });
+            tesinit
 
             /* pause to allow tests with timers to complete */
             console.log(tests.length + " tests PASSED");
