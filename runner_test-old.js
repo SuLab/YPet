@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * A tester for YPet
  * To use this tester, load the script AFTER YPet is loaded (i.e. modifying the webpage to be loaded is needed). Then
@@ -29,14 +31,14 @@ var _wordList = [],
 function _randomElement(list, criteria) {
     "use strict";
 
-    if (typeof list === "undefined" || !(list.length)) {
+    if (typeof list === "undefined" || !list.length) {
         return undefined;
     }
 
     if (typeof criteria !== "function") {
-        criteria = function(elem) {
+        criteria = function criteria(elem) {
             return true;
-        }
+        };
     }
 
     var j = 0;
@@ -59,11 +61,11 @@ function _randomElement(list, criteria) {
 function _assertSameWord($elem) {
     "use strict";
 
-    assert(lastResponse.type_id, 0, `Word "${$elem.text()}" type_id is not zero`);
-    assert(lastResponse.text, $elem.text(), `Word "${$elem.text()}" doesn't match response`);
+    assert(lastResponse.type_id, 0, "Word \"" + $elem.text() + "\" type_id is not zero");
+    assert(lastResponse.text, $elem.text(), "Word \"" + $elem.text() + "\" doesn't match response");
 };
 
-var _assertSameWords = function($leftElem, $rightElem) {
+var _assertSameWords = function _assertSameWords($leftElem, $rightElem) {
     "use strict";
 
     var texts = [];
@@ -77,8 +79,8 @@ var _assertSameWords = function($leftElem, $rightElem) {
     texts.push($rightElem.text());
     texts = _sanitize(texts.join(" "));
 
-    assert(lastResponse.type_id, 0, `Words "${texts}" type_id is not zero`);
-    assert(lastResponse.text, texts, `Words "${texts}" doesn't match response, which is "${lastResponse.text}"`);
+    assert(lastResponse.type_id, 0, "Words \"" + texts + "\" type_id is not zero");
+    assert(lastResponse.text, texts, "Words \"" + texts + "\" doesn't match response, which is \"" + lastResponse.text + "\"");
 };
 
 /**
@@ -95,7 +97,7 @@ function _processWords() {
     // Get the last instance of YPet
     var lastTop = -1,
         lastArray = undefined;
-    $($(".paragraph").get($(".paragraph").length - 1)).find("span").each(function() {
+    $($(".paragraph").get($(".paragraph").length - 1)).find("span").each(function () {
         var top = $(this).offset().top;
         if (top !== lastTop) {
             _wordList.push(lastArray);
@@ -148,12 +150,12 @@ function _testCycleForSingleWord($elem) {
     // First click, change to green
     $elem.mousedown().mouseup();
     assert(lastResponse.type_id, 1, "On first cycle: type_id should be 1, got " + lastResponse.type_id);
-    assert(lastResponse.text, response.text, `On first cycle: expect '${response.text}', got '${lastResponse.text}'. The element clicked is '${$elem.text()}'`);
+    assert(lastResponse.text, response.text, "On first cycle: expect '" + response.text + "', got '" + lastResponse.text + "'. The element clicked is '" + $elem.text() + "'");
 
     // Second click, change to red
     $elem.mousedown().mouseup();
     assert(lastResponse.type_id, 2, "On first cycle: type_id should be 2, got " + lastResponse.type_id);
-    assert(lastResponse.text, response.text, `On second cycle: expect '${response.text}', got '${lastResponse.text}'. The element clicked is '${$elem.text()}'`);
+    assert(lastResponse.text, response.text, "On second cycle: expect '" + response.text + "', got '" + lastResponse.text + "'. The element clicked is '" + $elem.text() + "'");
 
     // // Last click, nothing should be updated
     // response = lastResponse;
@@ -166,6 +168,7 @@ function _testCycleForMultipleWords($leftElem, $rightElem) {
     "use strict";
 
     // So that the expected number of elements to be iterated will be approx. equal to _ITERATIONS
+
     var threshold = _ITERATIONS / ($rightElem.index() - $leftElem.index());
 
     if (!isNaN(threshold) && threshold > 0) {
@@ -196,7 +199,7 @@ function _testClickOnValidWords() {
     console.log("Test clicking on valid words...", "background:#000; color:#fff");
 
     for (var i = 0; i < _ITERATIONS; ++i) {
-        var word = _randomElement(_randomElement(_wordList), (elem)=> {
+        var word = _randomElement(_randomElement(_wordList), function (elem) {
             return isValidWord($(elem).text());
         });
 
@@ -216,7 +219,7 @@ function _testClickOnInvalidWords() {
     console.log("Test clicking on invalid words...", "background:#000; color:#fff");
 
     // Iterate each element instead of randomly choosing
-    _.each(_invalidWordList, (word)=> {
+    _.each(_invalidWordList, function (word) {
         $(word).mousedown().mouseup();
 
         assert(lastResponse.type_id, 0, "On invalid word type_id: expect 0, got " + lastResponse.type_id);
@@ -224,7 +227,6 @@ function _testClickOnInvalidWords() {
         assert(lastResponse.words.length, 0, "On invalid word words: expect empty, got " + lastResponse.words);
     });
 }
-
 
 /**
  * Simulate dragging from `startElem` to `endElem`
@@ -279,9 +281,9 @@ function _testDragSameLine() {
     console.log("Test dragging the words in the same line ...", "background:#000; color:#fff");
 
     for (var i = 0; i < _ITERATIONS; ++i) {
-        (()=> {
+        (function () {
             var j = 0;
-            var group = _randomElement(_wordList, (elem)=> {
+            var group = _randomElement(_wordList, function (elem) {
                 return elem.length >= 2;
             });
             if (typeof group === "undefined") {
@@ -289,7 +291,7 @@ function _testDragSameLine() {
                 return;
             }
 
-            var leftElem = _randomElement(group, (elem) => {
+            var leftElem = _randomElement(group, function (elem) {
                 return isValidWord($(elem).text());
             });
             if (typeof leftElem === "undefined") {
@@ -297,7 +299,7 @@ function _testDragSameLine() {
                 return;
             }
 
-            var rightElem = _randomElement(group, (elem) => {
+            var rightElem = _randomElement(group, function (elem) {
                 return isValidWord($(elem).text()) && $(elem).index() !== $(leftElem).index();
             });
             if (typeof group === "undefined") {
@@ -331,8 +333,8 @@ function _testDragDifferentLine() {
     }
 
     for (var i = 0; i < _ITERATIONS; ++i) {
-        (()=> {
-            var leftElem = _randomElement(_randomElement(_wordList), (elem)=> {
+        (function () {
+            var leftElem = _randomElement(_randomElement(_wordList), function (elem) {
                 return isValidWord($(elem).text());
             });
             if (typeof leftElem === "undefined") {
@@ -340,7 +342,7 @@ function _testDragDifferentLine() {
                 return;
             }
 
-            var rightElem = _randomElement(_randomElement(_wordList), (elem) => {
+            var rightElem = _randomElement(_randomElement(_wordList), function (elem) {
                 return isValidWord($(elem).text()) && $(elem).offset().top !== $(leftElem).offset().top;
             });
             if (typeof rightElem === "undefined") {
@@ -374,8 +376,8 @@ function _testDragInvalidWord() {
     }
 
     for (var i = 0; i < _ITERATIONS; ++i) {
-        (()=> {
-            var validWord = _randomElement(_randomElement((_wordList), (elem) => {
+        (function () {
+            var validWord = _randomElement(_randomElement(_wordList, function (elem) {
                 return isValidWord($(elem).text());
             }));
 
@@ -384,9 +386,9 @@ function _testDragInvalidWord() {
                 return;
             }
 
-            var invalidWord = _randomElement(_invalidWordList, (elem)=> {
+            var invalidWord = _randomElement(_invalidWordList, function (elem) {
                 // Make sure this invalid word is not next to another invalid word
-                return ($(elem).index() > validWord.index()) ? isValidWord($(elem).prev().text()) : isValidWord($(elem).next().text());
+                return $(elem).index() > validWord.index() ? isValidWord($(elem).prev().text()) : isValidWord($(elem).next().text());
             });
 
             // Adjust `invalidWord` to become a valid word
@@ -414,9 +416,9 @@ function _selectFourUniqueValidWords(list) {
     var candidates = [];
 
     for (var j = 0; j < 4; ++j) {
-        ((j)=> {
+        (function (j) {
             while (typeof candidates[j] === "undefined") {
-                candidates[j] = _randomElement(_randomElement(list), (elem)=> {
+                candidates[j] = _randomElement(_randomElement(list), function (elem) {
                     if (isValidWord($(elem).text())) {
                         for (var i = 0; i < j; ++i) {
                             if ($(elem).index() === $(candidates[i]).index()) {
@@ -433,7 +435,7 @@ function _selectFourUniqueValidWords(list) {
     }
 
     // Sort the words based on their index
-    candidates = candidates.sort((l, r)=> {
+    candidates = candidates.sort(function (l, r) {
         return $(r).index() < $(l).index();
     });
     return candidates;
@@ -519,22 +521,23 @@ function _testSubmitResults() {
     console.log("Test submitting the results", "background:#000; color:#fff");
 
     var TYPE = {
-            CLICK_INVALID: undefined,
-            CLICK: 2,
-            DRAG_FORWARD_DIFFERENT_LINE: 3,
-            DRAG_BACKWARD_DIFFERENT_LINE: 4,
-            DRAG_FORWARD_SAME_LINE: 5,
-            DRAG_BACKWARD_SAME_LINE: 6,
-            DRAG_OVER_SELECTED: 7,
-            DRAG_TO_SELECTED: 8,
-            DRAG_FROM_SELECTED: 9,
-            DRAG_TO_INVALID: 100,
-            DRAG_FROM_INVALID: 101
-        },
-        /**
-         * The number of test cases above that need two lines (e.g. DRAG_FORWARD_DIFFERENT_LINE)
-         */
-        TWO_LINES = 2;
+        CLICK_INVALID: undefined,
+        CLICK: 2,
+        DRAG_FORWARD_DIFFERENT_LINE: 3,
+        DRAG_BACKWARD_DIFFERENT_LINE: 4,
+        DRAG_FORWARD_SAME_LINE: 5,
+        DRAG_BACKWARD_SAME_LINE: 6,
+        DRAG_OVER_SELECTED: 7,
+        DRAG_TO_SELECTED: 8,
+        DRAG_FROM_SELECTED: 9,
+        DRAG_TO_INVALID: 100,
+        DRAG_FROM_INVALID: 101
+    },
+
+    /**
+     * The number of test cases above that need two lines (e.g. DRAG_FORWARD_DIFFERENT_LINE)
+     */
+    TWO_LINES = 2;
 
     // Make sure we have sufficient amount of lines to test all these
     var test_array = Object.keys(TYPE),
@@ -561,8 +564,7 @@ function _testSubmitResults() {
             tmp = test_array[i];
         test_array[i] = test_array[tar];
         test_array[tar] = tmp;
-        if (test_array[i] == TYPE.DRAG_FROM_INVALID ||
-            test_array[i] == TYPE.DRAG_TO_INVALID) {
+        if (test_array[i] == TYPE.DRAG_FROM_INVALID || test_array[i] == TYPE.DRAG_TO_INVALID) {
             // Make sure there is an invalid word in this line
             for (var j = 0; j < _wordList[i].length; ++j) {
                 if (!isValidWord(_wordList[i][j].text())) {
@@ -580,8 +582,7 @@ function _testSubmitResults() {
                 }
                 continue;
             }
-        } else if (test_array[i] == TYPE.DRAG_BACKWARD_DIFFERENT_LINE ||
-            test_array[i] == TYPE.DRAG_FORWARD_DIFFERENT_LINE) {
+        } else if (test_array[i] == TYPE.DRAG_BACKWARD_DIFFERENT_LINE || test_array[i] == TYPE.DRAG_FORWARD_DIFFERENT_LINE) {
             // The next line is skipped because these two test cases need two lines
             test_array.splice(++i, 0, undefined);
         }
@@ -594,16 +595,17 @@ function _testSubmitResults() {
      */
     var expected = [],
         $elem,
-        /**
-         * Push an element in to expected, will also randmoized the type id
-         * @param $elem
-         */
-        __pushToExpected = function($elem) {
-            expected.push({
-                type_id: _setRandomTypeID($elem),
-                text: lastResponse.text
-            });
-        },
+
+    /**
+     * Push an element in to expected, will also randmoized the type id
+     * @param $elem
+     */
+    __pushToExpected = function __pushToExpected($elem) {
+        expected.push({
+            type_id: _setRandomTypeID($elem),
+            text: lastResponse.text
+        });
+    },
         invalidWordLength = 0;
 
     for (i = 0; i < len; ++i) {
@@ -617,9 +619,10 @@ function _testSubmitResults() {
                 break;
 
             case TYPE.DRAG_FORWARD_DIFFERENT_LINE:
-                var $dragFrom = _randomElement(_wordList[i++], function($elem) {
+                var $dragFrom = _randomElement(_wordList[i++], function ($elem) {
                     return isValidWord($elem.text());
-                }), $dragTo = _randomElement(_wordList[i], function($elem) {
+                }),
+                    $dragTo = _randomElement(_wordList[i], function ($elem) {
                     return isValidWord($elem.text());
                 });
 
@@ -628,10 +631,10 @@ function _testSubmitResults() {
                 break;
 
             case TYPE.DRAG_BACKWARD_DIFFERENT_LINE:
-                $dragTo = _randomElement(_wordList[i++], function($elem) {
+                $dragTo = _randomElement(_wordList[i++], function ($elem) {
                     return isValidWord($elem.text());
                 });
-                $dragFrom = _randomElement(_wordList[i], function($elem) {
+                $dragFrom = _randomElement(_wordList[i], function ($elem) {
                     return isValidWord($elem.text());
                 });
 
@@ -682,7 +685,7 @@ function _testSubmitResults() {
                     }
                 }
 
-                $elem = _randomElement(_wordList[i], (elem) => {
+                $elem = _randomElement(_wordList[i], function (elem) {
                     return isValidWord(elem.text());
                 });
 
@@ -698,7 +701,7 @@ function _testSubmitResults() {
                     }
                 }
 
-                $elem = _randomElement(_wordList[i], (elem) => {
+                $elem = _randomElement(_wordList[i], function (elem) {
                     return isValidWord(elem.text());
                 });
 
@@ -722,19 +725,18 @@ function _testSubmitResults() {
     var got = YPet.getView().getRegion(1).currentView.collection.parentDocument.get("annotations").toJSON();
 
     console.log("   Verifying word length", "background:#888; color:#fff");
-    var invalidWords = _.where(got, {"text": ""});
+    var invalidWords = _.where(got, { "text": "" });
     // console.assert(invalidWords.length === invalidWordLength, `Incorrect invalid word length. Expect
     // ${invalidWordLength}, got ${invalidWords.length}`);
 
     got = _.difference(got, invalidWords);
-    assert(got.length, expected.length, `Incorrect word length. Expect ${expected.length}, got ${got.length}`);
+    assert(got.length, expected.length, "Incorrect word length. Expect " + expected.length + ", got " + got.length);
 
     console.log("   Verifying word content", "background:#888; color:#fff");
-    got = _.map(got, (e)=> {
+    got = _.map(got, function (e) {
         return _.omit(e, ["words", "start"]);
     });
-    assert(JSON.stringify(got), JSON.stringify(expected), `Annotations don't match`);
-
+    assert(JSON.stringify(got), JSON.stringify(expected), "Annotations don't match");
 }
 
 /**
@@ -756,9 +758,10 @@ function init() {
     var regions = YPet.getView().getRegions();
 
     // For each region, add a new listener to listen to annotation change
-    _.each(regions, (region) => {
-        region.currentView.collection.parentDocument.get("annotations").on("change", (model) => {
+    _.each(regions, function (region) {
+        region.currentView.collection.parentDocument.get("annotations").on("change", function (model) {
             "use strict";
+
             lastResponse = model.toJSON();
 
             var type = lastResponse.type_id;
@@ -777,29 +780,17 @@ function init() {
  */
 function isValidWord(full_str) {
     "use strict";
-    return !!(_sanitize(full_str).length);
+
+    return !!_sanitize(full_str).length;
 }
 
-var tests = [
-    _testClickOnValidWords,
-    _testClickOnInvalidWords,
-
-    _testDragSameLine,
-    _testDragDifferentLine,
-    _testDragOverSelectedWord,
-    _testDragFromSelectedWord,
-    _testDragToSelectedWord,
-
-    _testDragInvalidWord,
-    _testSubmitResults
-];
-
+var tests = [_testClickOnValidWords, _testClickOnInvalidWords, _testDragSameLine, _testDragDifferentLine, _testDragOverSelectedWord, _testDragFromSelectedWord, _testDragToSelectedWord, _testDragInvalidWord, _testSubmitResults];
 
 /* phantomjs page setup */
 
 var page = require('webpage').create();
 
-page.onConsoleMessage = function(msg) {
+page.onConsoleMessage = function (msg) {
     console.log(msg);
 };
 
@@ -808,19 +799,19 @@ phantom.injectJs('./test/tests-old.js');
 
 /* test runner */
 
-page.open("./test/test_page.html", function(status) {
+page.open("./test/test_page.html", function (status) {
     if (status !== "success") {
         console.log("Error loading page");
         phantom.exit(1);
     }
     page.injectJs("./test/assert-old.js");
-    page.includeJs("../src/lib/jquery-1.11.1.min.js", function() {
-        page.includeJs("../src/lib/underscore-min.js", function() {
+    page.includeJs("../src/lib/jquery-1.11.1.min.js", function () {
+        page.includeJs("../src/lib/underscore-min.js", function () {
             console.log("loaded");
 
             init();
 
-            tests.forEach(function(test_function) {
+            tests.forEach(function (test_function) {
                 /* execute test in the page context */
                 console.log("Evaluate:" + test_function);
                 page.evaluate(test_function);
@@ -833,14 +824,15 @@ page.open("./test/test_page.html", function(status) {
     });
 });
 
-page.onError = function(msg, trace) {
+page.onError = function (msg, trace) {
     console.error("An error occured");
     /* inject a line number into the error message raised by assert() */
     if (trace.length > 1) {
-        console.log(msg.replace(/: in /,
-            " in line " + (parseInt(trace[1].line) - 1) + " of "));
+        console.log(msg.replace(/: in /, " in line " + (parseInt(trace[1].line) - 1) + " of "));
     } else {
         console.log("line " + (parseInt(trace[0].line) - 1) + ": " + msg);
     }
     phantom.exit(1);
 };
+
+//# sourceMappingURL=runner_test-old.js.map
