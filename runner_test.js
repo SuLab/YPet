@@ -60,3 +60,7 @@ page.onError = function(msg, trace) {
     }
     phantom.exit(1);
 };
+
+
+
+// TODO: find a way to avoid dead loop in drag

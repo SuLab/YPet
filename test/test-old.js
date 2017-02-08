@@ -835,7 +835,7 @@ document._testSubmitResults = function () {
         }
 
         // Verify expected against what's fetched
-        var got = document.YPet.getView().getRegion(1).currentView.collection.parentDocument.get("annotations").toJSON();
+        var got = YPet.getRegion().currentView.collection.parentDocument.get("annotations").toJSON();
 
         console.log("   Verifying word length");
         var invalidWords = _.where(got, { "text": "" });
