@@ -35,6 +35,12 @@ var _ITERATIONS = 5;
 var _wordList = [],
     _invalidWordList = [];
 
+/**
+ * If on every click on the word, the word just changed is to be printed to console
+ * @type {boolean}
+ */
+document.printDebugAnnotation = false;
+
 function _assert(got, expected, errorMessage) {
     if (got != expected) {
         throw new Error(errorMessage);
@@ -244,14 +250,14 @@ function _dragAndTest($dragFrom, $dragTo, $assertFrom, $assertTo) {
     // ${$assertFrom.index()}, $assertTo: ${$assertTo.index()}`);
 
     // Drag forward
-    console.log(`   Dragging forward: ${dragFrom.text()}[${dragFrom.index()}] -> ${dragTo.text()}[${dragTo.index()}]`);
+    console.log(`    Dragging forward: ${$dragFrom.text()}[${$dragFrom.index()}] -> ${$dragTo.text()}[${$dragTo.index()}]`);
     _simulateDragSelectWords($dragFrom, $dragTo);
 
     _assertSameWords($assertFrom, $assertTo);
     _testCycle($assertFrom, $assertTo);
 
     // Drag in opposite direction
-    console.log("   Dragging backward");
+    console.log("    Dragging backward");
     _simulateDragSelectWords($dragTo, $dragFrom);
 
     _assertSameWords($assertFrom, $assertTo);
@@ -341,9 +347,10 @@ document.testInit = function() {
         "use strict";
         lastResponse = model.toJSON();
 
-        var type = lastResponse.type_id;
-        // console.log("" + lastResponse.text.substr(0, 50), `font-size:6px;color:${type == 0 ? "#d1f3ff" : (type == 1
-        // ? "#B1FFA8" : "#ffd1dc")}`);
+        if (document.printDebugAnnotation) {
+            var type = lastResponse.type_id;
+            console.log("%c" + lastResponse.text.substr(0, 50), `color:${type == 0 ? "#d1f3ff" : (type == 1 ? "#B1FFA8" : "#ffd1dc")}`);
+        }
     });
 
     _processWords();
@@ -392,7 +399,13 @@ document._testClickOnInvalidWords = function() {
 
             _assert(lastResponse.type_id, 0, "On invalid word type_id: expect 0, got " + lastResponse.type_id);
             _assert(lastResponse.text.length, 0, "On invalid word text: expect '', got " + lastResponse.text);
-            _assert(lastResponse.words.length, 0, "On invalid word length: expect empty, got " + JSON.stringify(lastResponse.words));
+            if (lastResponse.words.length !== 0) {
+                if (lastResponse.words.length === 1) {
+                    _assert(_sanitize(lastResponse.words[0].text), "", `On invalid word length: the word ${lastResponse.words[0].text} is not invalid`);
+                } else {
+                    _assert(lastResponse.words.length, 0, "On invalid word length: expect empty, got " + JSON.stringify(lastResponse.words));
+                }
+            }
         });
     } catch (e) {
         return e.message;
