@@ -250,7 +250,7 @@ function _dragAndTest($dragFrom, $dragTo, $assertFrom, $assertTo) {
     // ${$assertFrom.index()}, $assertTo: ${$assertTo.index()}`);
 
     // Drag forward
-    console.log(`    Dragging forward: ${$dragFrom.text()}[${$dragFrom.index()}] -> ${$dragTo.text()}[${$dragTo.index()}]`);
+    console.log(`    Dragging forward: '${$dragFrom.text()}'[${$dragFrom.index()}] -> '${$dragTo.text()}'[${$dragTo.index()}]`);
     _simulateDragSelectWords($dragFrom, $dragTo);
 
     _assertSameWords($assertFrom, $assertTo);
@@ -296,8 +296,9 @@ function _selectFourUniqueValidWords(list) {
 
     // Sort the words based on their index
     candidates = candidates.sort((l, r)=> {
-        return $(r).index() < $(l).index();
+        return $(l).index() - $(r).index();
     });
+
     return candidates;
 }
 
@@ -720,17 +721,25 @@ document._testSubmitResults = function() {
              * @param $elem
              */
             __pushToExpected = function($elem) {
+                if (typeof $elem == "undefined") {
+                    console.log(" >> Can't push an undefined DOM into the list");
+                }
+
                 expected.push({
                     type_id: _setRandomTypeID($elem),
                     text: lastResponse.text
                 });
-            },
-            invalidWordLength = 0;
+            };
 
         for (i = 0; i < len; ++i) {
             switch (test_array[i]) {
                 case TYPE.CLICK:
                     $elem = _selectFourUniqueValidWords(_wordList[i]);
+                    if (typeof $elem[0] === "undefined") {
+                        console.log(" >> Unable to find qualified words for CLICK");
+                        break;
+                    }
+
                     for (j = 0; j < 4; ++j) {
                         $($elem[j]).mousedown().mouseup();
                         __pushToExpected($elem[j]);
@@ -744,6 +753,11 @@ document._testSubmitResults = function() {
                         return isValidWord($elem.text());
                     });
 
+                    if (!$dragFrom || !$dragTo) {
+                        console.log(" >> Unable to find qualified words for DRAG FORWARD on diff lines");
+                        break;
+                    }
+
                     _simulateDragSelectWords($dragFrom, $dragTo);
                     __pushToExpected($dragFrom);
                     break;
@@ -756,24 +770,47 @@ document._testSubmitResults = function() {
                         return isValidWord($elem.text());
                     });
 
+                    if (!$dragFrom || !$dragTo) {
+                        console.log(" >> Unable to find qualified words for DRAG BACKWARD on diff lines");
+                        break;
+                    }
+
                     _simulateDragSelectWords($dragFrom, $dragTo);
                     __pushToExpected($dragFrom);
                     break;
 
                 case TYPE.DRAG_FORWARD_SAME_LINE:
                     $elem = _selectFourUniqueValidWords(_wordList[i]);
+
+                    if (typeof $elem[0] === "undefined") {
+                        console.log(" >> Unable to find qualified words for DRAG FORWARD on same line");
+                        break;
+                    }
+
                     _simulateDragSelectWords($elem[0], $elem[3]);
                     __pushToExpected($elem[1]);
                     break;
 
                 case TYPE.DRAG_BACKWARD_SAME_LINE:
                     $elem = _selectFourUniqueValidWords(_wordList[i]);
+
+                    if (typeof $elem[0] === "undefined") {
+                        console.log(" >> Unable to find qualified words for DRAG BACKWARD on same line");
+                        break;
+                    }
+
                     _simulateDragSelectWords($elem[3], $elem[0]);
                     __pushToExpected($elem[1]);
                     break;
 
                 case TYPE.DRAG_OVER_SELECTED:
                     $elem = _selectFourUniqueValidWords(_wordList[i]);
+
+                    if (typeof $elem[0] === "undefined") {
+                        console.log(" >> Unable to find qualified words for DRAG OVER selected");
+                        break;
+                    }
+
                     _simulateDragSelectWords($elem[1], $elem[2]);
                     _simulateDragSelectWords($elem[0], $elem[3]);
 
@@ -782,6 +819,11 @@ document._testSubmitResults = function() {
 
                 case TYPE.DRAG_TO_SELECTED:
                     $elem = _selectFourUniqueValidWords(_wordList[i]);
+
+                    if (typeof $elem[0] === "undefined") {
+                        console.log(" >> Unable to find qualified words for DRAG TO selected");
+                        break;
+                    }
                     _simulateDragSelectWords($elem[1], $elem[3]);
                     _simulateDragSelectWords($elem[0], $elem[2]);
 
@@ -790,6 +832,12 @@ document._testSubmitResults = function() {
 
                 case TYPE.DRAG_FROM_SELECTED:
                     $elem = _selectFourUniqueValidWords(_wordList[i]);
+
+                    if (typeof $elem[0] === "undefined") {
+                        console.log(" >> Unable to find qualified words for DRAG FROM selected");
+                        break;
+                    }
+
                     _simulateDragSelectWords($elem[1], $elem[3]);
                     _simulateDragSelectWords($elem[2], $elem[0]);
 
@@ -833,7 +881,6 @@ document._testSubmitResults = function() {
                     for (j = 0; j < _wordList[i].length; ++j) {
                         if (!isValidWord(_wordList[i][j].text())) {
                             $(_wordList[i][j]).mousedown().mouseup();
-                            ++invalidWordLength;
                         }
                     }
             }
@@ -848,14 +895,18 @@ document._testSubmitResults = function() {
         // ${invalidWordLength}, got ${invalidWords.length}`);
 
         got = _.difference(got, invalidWords);
-        _assert(got.length, expected.length, `Incorrect word length. Expect ${expected.length}, got ${got.length}
-Expect: ${JSON.stringify(expected)}
-Got   : ${JSON.stringify(got)}`);
-
-        console.log("   Verifying word content");
         got = _.map(got, (e)=> {
             return _.omit(e, ["words", "start"]);
         });
+
+        _assert(got.length, expected.length, `Incorrect word length. Expect ${expected.length}, got ${got.length}
+    >>>
+Expect: ${JSON.stringify(expected)}
+    ---
+Got   : ${JSON.stringify(got)}
+    <<<`);
+
+        console.log("   Verifying word content");
         _assert(JSON.stringify(got), JSON.stringify(expected), `Annotations don't match`);
     } catch (e) {
         return e.message;
