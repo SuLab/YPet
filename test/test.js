@@ -441,7 +441,7 @@ document._testDragSameLine = function() {
                 var rightElem = _randomElement(group, (elem) => {
                     return isValidWord($(elem).text()) && $(elem).index() !== $(leftElem).index();
                 });
-                if (typeof group === "undefined") {
+                if (typeof rightElem === "undefined") {
                     console.log("Unable to find a qualified word");
                     return;
                 }
@@ -848,7 +848,9 @@ document._testSubmitResults = function() {
         // ${invalidWordLength}, got ${invalidWords.length}`);
 
         got = _.difference(got, invalidWords);
-        _assert(got.length, expected.length, `Incorrect word length. Expect ${expected.length}, got ${got.length}`);
+        _assert(got.length, expected.length, `Incorrect word length. Expect ${expected.length}, got ${got.length}
+Expect: ${JSON.stringify(expected)}
+Got   : ${JSON.stringify(got)}`);
 
         console.log("   Verifying word content");
         got = _.map(got, (e)=> {
