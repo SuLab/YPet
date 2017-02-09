@@ -761,13 +761,3 @@ WordCollectionView = Backbone.Marionette.CollectionView.extend({
     },
 
 });
-
-
-function initAnnotationTypes(Ypet) {
-    Ypet.AnnotationTypes = new AnnotationTypeList([
-        {name: 'Disease', color: '#d1f3ff'},
-        {name: 'Gene', color: '#B1FFA8'},
-        {name: 'Drug', color: '#ffd1dc'}
-    ]);
-};
-

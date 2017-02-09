@@ -42,9 +42,9 @@ page.open("./test/test_page.html", function(status) {
 
     tests.forEach(function(test_function) {
         var msg = page.evaluate("document." + test_function);
-        // if (msg && msg != "") {
-            throw new Error("Error: "+(msg));
-        // }
+        if (msg && msg != "") {
+            throw new Error("Error: " + msg);
+        }
     });
 
     console.log(tests.length + " tests PASSED");
@@ -63,7 +63,3 @@ page.onError = function(msg, trace) {
     }
     phantom.exit(1);
 };
-
-
-
-// TODO: find a way to avoid dead loop in drag
