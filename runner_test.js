@@ -25,6 +25,21 @@ page.open("./test/test_page.html", function(status) {
         return document.testInit();
     });
 
+    var tests = [
+        "testInit",
+        "_testClickOnValidWords",
+        "_testClickOnInvalidWords",
+
+        "_testDragSameLine",
+        "_testDragDifferentLine",
+        "_testDragOverSelectedWord",
+        "_testDragFromSelectedWord",
+        "_testDragToSelectedWord",
+
+        "_testDragInvalidWord",
+        "_testSubmitResults"
+    ];
+
     tests.forEach(function(test_function) {
         var msg = page.evaluate("document." + test_function);
         if (msg != "") {
