@@ -42,7 +42,7 @@ page.open("./test/test_page.html", function(status) {
 
     tests.forEach(function(test_function) {
         var msg = page.evaluate("document." + test_function);
-        if (msg != "") {
+        if (msg && msg != "") {
             throw new Error(msg);
         }
     });
