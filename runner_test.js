@@ -17,25 +17,13 @@ page.open("./test/test_page.html", function(status) {
     if (status !== "success") {
         console.log("Error loading page");
         phantom.exit(1);
+    } else {
+        console.log("Page loaded");
     }
 
     page.evaluate(function() {
         return document.testInit();
     });
-
-    var tests = [
-        "_testClickOnValidWords",
-        "_testClickOnInvalidWords",
-
-        "_testDragSameLine",
-        "_testDragDifferentLine",
-        "_testDragOverSelectedWord",
-        "_testDragFromSelectedWord",
-        "_testDragToSelectedWord",
-
-        "_testDragInvalidWord",
-        "_testSubmitResults"
-    ];
 
     tests.forEach(function(test_function) {
         var msg = page.evaluate("document." + test_function);
@@ -60,3 +48,7 @@ page.onError = function(msg, trace) {
     }
     phantom.exit(1);
 };
+
+
+
+// TODO: find a way to avoid dead loop in drag

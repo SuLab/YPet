@@ -97,7 +97,7 @@ var _assertSameWords = function($leftElem, $rightElem) {
     var texts = [];
     var $curr = $($leftElem);
 
-    while ($curr.index() !== $rightElem.index()) {
+    while ($curr.index() < $rightElem.index()) {
         texts.push(_.str.clean($curr.text()));
         $curr = $curr.next();
     }
@@ -211,7 +211,7 @@ function _testCycleForMultipleWords($leftElem, $rightElem) {
             }
 
             $curr = $curr.next();
-        } while ($curr.index() !== $rightElem.index());
+        } while ($curr.index() < $rightElem.index());
     }
 
     _testCycleForSingleWord($rightElem);
@@ -840,7 +840,7 @@ document._testSubmitResults = function() {
         }
 
         // Verify expected against what's fetched
-        var got = document.YPet.getView().getRegion(1).currentView.collection.parentDocument.get("annotations").toJSON();
+        var got = YPet.getRegion().currentView.collection.parentDocument.get("annotations").toJSON();
 
         console.log("   Verifying word length");
         var invalidWords = _.where(got, {"text": ""});
