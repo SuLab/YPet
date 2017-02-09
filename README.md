@@ -1,5 +1,6 @@
 # YPet
-![](https://travis-ci.org/AnoXDD/YPet.svg?branch=master)
+
+[![Build Status](https://travis-ci.org/AnoXDD/YPet.svg?branch=master)](https://travis-ci.org/AnoXDD/YPet)
 
 [YPet](https://github.com/SuLab/YPet) is a Javascript library built in [Marionette.js](http://marionettejs.com/) to rapidly annotate paragraphs of text on websites. The project aims to rethink HTML text annotation, primarily focused on biocuration and adheres to the following rules:
 

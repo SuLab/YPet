@@ -42,9 +42,9 @@ page.open("./test/test_page.html", function(status) {
 
     tests.forEach(function(test_function) {
         var msg = page.evaluate("document." + test_function);
-        if (msg && msg != "") {
+        // if (msg && msg != "") {
             console.log("Error: "+(msg));
-        }
+        // }
     });
 
     console.log(tests.length + " tests PASSED");
