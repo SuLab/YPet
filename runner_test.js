@@ -11,22 +11,8 @@ page.viewportSize = {
     height: 800
 };
 
-/* test runner */
-
-page.open("./test/test_page.html", function(status) {
-    if (status !== "success") {
-        console.log("Error loading page");
-        phantom.exit(1);
-    } else {
-        console.log("Page loaded");
-    }
-
-    page.evaluate(function() {
-        return document.testInit();
-    });
-
-    var tests = [
-        "testInit",
+var test_suites = {
+    "./test/test_page.html": [
         "_testClickOnValidWords",
         "_testClickOnInvalidWords",
 
@@ -38,18 +24,62 @@ page.open("./test/test_page.html", function(status) {
 
         "_testDragInvalidWord",
         "_testSubmitResults"
-    ];
+    ],
+    "./test/test_page2.html": [
+        "_testClickOnValidWords",
+        "_testClickOnInvalidWords",
 
-    tests.forEach(function(test_function) {
-        var msg = page.evaluate("document." + test_function);
-        if (msg && msg != "") {
-            throw new Error("Error: " + msg);
-        }
-    });
+        "_testDragSameLine",
+        "_testDragDifferentLine",
+        "_testDragOverSelectedWord",
+        "_testDragFromSelectedWord",
+        "_testDragToSelectedWord",
 
-    console.log(tests.length + " tests PASSED");
-    phantom.exit(0);
-});
+        "_testDragInvalidWord",
+        "_testSubmitResults"
+    ],
+};
+
+/* test runner */
+var htmls = Object.keys(test_suites);
+var running_html = "";
+for (var i = 0; i < htmls.length; ++i) {
+    (function(i) {
+        var interval = setInterval(function() {
+            if (running_html === htmls[i]) {
+                clearInterval(interval);
+                page.open(running_html, function(status) {
+                    if (status !== "success") {
+                        console.log("Error loading page");
+                        phantom.exit(1);
+                    } else {
+                        console.log("\n===========Page loaded: " + running_html + "===========");
+                    }
+
+                    page.evaluate(function() {
+                        return document.testInit();
+                    });
+
+                    test_suites[running_html].forEach(function(test_function) {
+                        var msg = page.evaluate("document." + test_function);
+                        if (msg && msg != "") {
+                            throw new Error("Error: " + msg);
+                        }
+                    });
+
+                    console.log(test_suites[running_html].length + " tests PASSED");
+                    // Pass to the next test suite
+                    if (!(running_html = htmls[++i])) {
+                        phantom.exit(0);
+                    }
+                });
+
+            }
+        }, 1000);
+    })(i);
+}
+running_html = htmls[0];
+
 
 page.onError = function(msg, trace) {
     console.error("An error occured");
