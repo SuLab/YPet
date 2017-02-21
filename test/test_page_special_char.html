@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>YPet Demo</title>
+  <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
+  <link rel='stylesheet' href='../main.css'>
+</head>
+<body>
+<a href="https://github.com/sulab/YPet"><img style="position: fixed; top: 0; right: 0; border: 0; z-index: 999;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+<p id="credits">By <a href="http://twitter.com/x0xMaximus" target="_blank">Max Nanis</a><br>at <a href="http://sulab.org/" target="_blank">The Su Lab</a></p>
+<p>The testing script is written by Runjie Guan</p>
+
+<div class="container head-space">
+
+  <div class="row">
+    <div class="col-xs-10 col-xs-offset-1">
+      <div class="alert alert-info alert-paragraph-box">
+        <div class="row">
+          <div class="col-xs-8 col-xs-offset-2">
+            <p class="text-center">This is the test case where it looks at specific edge cases, and where previous build of YPet fails</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div id="target" class="col-xs-10 col-xs-offset-1">
+      <p class="paragraph">First , we will have all the characters on the keyboard q a z w s x e d c r f v t g b y h n u j m i k o l p Q A Z W S X E D C R F V T G B Y H N U J M I K L O P 1 2 3 4 5 6 7 8 9 0 ` ~ ! @ # $ % ^ & * ( ) _ + - = [ ] \ { } | ; ' : " , . / < > ? Second , we will have some combinations 1q 2W e3 R4 5T6 7u8 i9o p0A S1d F3g 1+2=3 4&4<8 7%-.03 5~6 3.1415926 a-ha O-O we@mark2Cure i<3TSRI h&M rose!=rose!=rose ca$h next\nline 4>_$f.teT_:Wd wr;t-.er.-3 432.we;rt-2 ew->Te;.f t;r-.;twer-vewr;tfe-;rr-r.ew:33 t.-;t-.tv.trVR@#(T3F keof(tg09i r0hfldsk[][]\[\]2314 321\\\\\\\\\\\\\\\\\\\\\\\3424 a&&&&&&&&&&&&<<<<<<<<<>>>><><><<><<2 console.log('hello');document javascript:alert('xxr');document And last , we should select all to see if it matches</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-3 col-xs-offset-1">
+      <ul class="annotation-type-list list-group"></ul>
+    </div>
+
+    <div class="col-xs-7">
+      <ul class="annotation-list list-group"></ul>
+    </div>
+  </div>
+
+</div>
+<script src="../src/lib/jquery-1.11.1.min.js"></script>
+<script src="../src/lib/bootstrap.min.js"></script>
+<script src="../src/lib/underscore-min.js"></script>
+<script src="../src/underscore.string.min.js"></script>
+<script src="../src/lib/backbone-min.js"></script>
+<script src="../src/backbone-relational.js"></script>
+<script src="../src/lib/backbone.radio.min.js"></script>
+<script src="../src/backbone.marionette_v3.min.js"></script>
+
+<script src="../src/ypet-new.js"></script>
+<script src="test-old.js"></script>
+</body>
+</html>

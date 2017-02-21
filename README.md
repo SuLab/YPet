@@ -1,5 +1,7 @@
 # YPet
 
+[![Build Status](https://travis-ci.org/AnoXDD/YPet.svg?branch=master)](https://travis-ci.org/AnoXDD/YPet)
+
 [YPet](https://github.com/SuLab/YPet) is a Javascript library built in [Marionette.js](http://marionettejs.com/) to rapidly annotate paragraphs of text on websites. The project aims to rethink HTML text annotation, primarily focused on biocuration and adheres to the following rules:
 
 * Limit the possibility for damaged annotations, individual letters are not desired.
@@ -17,7 +19,48 @@ Example of behavior:
 
 ## How to Use
 
+The latest version of YPet (`ypet-new.js`) is built based on Marionette V3, but a older version of YPet (`ypet.js`) supports V2. 
+
+The build badge at the beginning of this file indicates the status of the **latest** version. 
+
+We recommend working with Marionette V3, because the older version of YPet does not process special characters like &, <, > properly. You will get `&amp;`, `&lt;`, `&gt;` instead of the characters. 
+
 ### Setup
+
+For Marionette V3:
+
+```javascript
+/* Setup the paragraphs with a string to tokenize */
+var p1 = new Paragraph({'text': $('p#some-paragraph').html()});
+var p2 = new Paragraph({'text': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tincidunt tempus lorem, quis sollicitudin lectus pretium nec. Ut non enim.'});
+
+/* Configure the # and colors of Annotation types (minimum 1 required) */
+YPet.AnnotationTypes = new AnnotationTypeList([
+{name: 'Person', color: '#A4DEAB'},
+{name: 'Place', color: 'PowderBlue'},
+{name: 'Thing', color: 'rgb(0, 180, 200)'}
+]);
+
+YPet = new Backbone.Marionette.Application({
+    region: "#doc" // where p1 and p2 are placed
+});
+
+/* Assign views to Region */
+YPet.showView(new (Mn.View.extend({
+    el: ".container-to-hold-p1p2",
+    regions: {
+        'p1': '#container-to-place-p1',
+        'p2': '#container-to-place-p2'
+    }
+}))());
+
+/* Put the new Annotation views on the page */
+YPet.getView().getRegion(1).show( new WordCollectionView({collection: p1.get('words')}) );
+YPet.getView().getRegion(2).show( new WordCollectionView({collection: p2.get('words')}) );
+
+YPet.start();
+```
+For Marionette V2:
 
 ```javascript
 YPet.addInitializer(function(options) {
@@ -47,12 +90,29 @@ YPet.start();
 
 ```
 
-### Events
+#### Events
 
 If you want to live track annotations as they're put on the paragraph (to save, send to a server, or do something else with) the following callbacks and serialization methods are available.
 
 Each annotation is returned as an object with a `start` and `text` attribute, as well as an array of children words.
 
+For Marionette V3:
+
+```javascript
+YPet.getView().getRegion(1).currentView.collection.parentDocument.get('annotations').on('add', function(model, collection) {
+  console.log('Add:', model.toJSON(), collection.toJSON());
+});
+
+YPet.getView().getRegion(1).currentView.collection.parentDocument.get('annotations').on('remove', function(model, collection) {
+  console.log('Remove:', model.toJSON(), collection.toJSON());
+});
+
+YPet.getView().getRegion(1).currentView.collection.parentDocument.get('annotations').on('change', function(model) {
+  console.log('Change:', model.toJSON());
+});
+```
+
+For Marionette V2:
 
 ```javascript
 YPet['p1'].currentView.collection.parentDocument.get('annotations').on('add', function(model, collection) {
@@ -70,7 +130,7 @@ YPet['p1'].currentView.collection.parentDocument.get('annotations').on('change',
 
 ## About
 
-[YPet](https://github.com/SuLab/YPet) was developed to rapidly annotate bio-medical literature for [Mark2Cure](http://mark2cure.org) at [The Su Lab](http://sulab.org/) by [Max Nanis](http://twitter.com/x0xMaximus).
+[YPet](https://github.com/SuLab/YPet) was developed to rapidly annotate bio-medical literature for [Mark2Cure](http://mark2cure.org) at [The Su Lab](http://sulab.org/) by [Max Nanis](http://twitter.com/x0xMaximus). The testing script is written by [Runjie Guan](http://anoxic.me).
 
 
 ![The Scripps Research Institute](http://www.scripps.edu/files/images/logo120.png "The Scripps Research Institute")
