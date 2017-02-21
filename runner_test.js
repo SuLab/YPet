@@ -25,19 +25,20 @@ var test_suites = {
         "_testDragInvalidWord",
         "_testSubmitResults"
     ],
-    "./test/test_page2.html": [
-        "_testClickOnValidWords",
+    "./test/test_page_special_char.html": [
         "_testClickOnInvalidWords",
 
-        "_testDragSameLine",
-        "_testDragDifferentLine",
-        "_testDragOverSelectedWord",
-        "_testDragFromSelectedWord",
-        "_testDragToSelectedWord",
-
-        "_testDragInvalidWord",
-        "_testSubmitResults"
+        "_testSelectAll",
+        "_testClickOnEachValidWord",
     ],
+    "./test/test_page_fixed.html": [
+        "_testClickOnValidWordsFixed",
+
+        "_testDragFixed",
+        "_testDragSelectedFixed",
+
+        "_testDragInvalidWordFixed"
+    ]
 };
 
 /* test runner */

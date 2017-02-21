@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>YPet Demo</title>
+  <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
+  <link rel='stylesheet' href='../main.css'>
+</head>
+<body>
+<a href="https://github.com/sulab/YPet"><img style="position: fixed; top: 0; right: 0; border: 0; z-index: 999;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+<p id="credits">By <a href="http://twitter.com/x0xMaximus" target="_blank">Max Nanis</a><br>at <a href="http://sulab.org/" target="_blank">The Su Lab</a></p>
+<p>The testing script is written by Runjie Guan</p>
+
+<div class="container head-space">
+
+  <div class="row">
+    <div class="col-xs-10 col-xs-offset-1">
+      <div class="alert alert-info alert-paragraph-box">
+        <div class="row">
+          <div class="col-xs-8 col-xs-offset-2">
+            <h2 class="text-center">Click n' Drag on stuff!</h2>
+            <p class="text-center"><a href="https://github.com/SuLab/YPet">YPet</a> is a Javascript library to rapidly annotate paragraphs of text on websites with the goal of making the annotation process as fast and simple as possible.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div id="target" class="col-xs-10 col-xs-offset-1">
+      <p class="paragraph">BACKGROUND & AIMS  The chromosome region 18q21 has been shown to be frequently deleted in colorectal cancers , and such frequent allelic loss is a hallmark of the presence of a tumor-suppressor gene . The DPC4 gene , which is located at 18q21 , has been identified as a tumor-suppressor gene from examination of pancreatic cancers . The aim of the present study was to determine if it might also be altered in colorectal cancers . METHODS  Mutation analyses of the DPC4 gene were performed on complementary DNA samples from 31 primary colorectal cancer specimens using a combination of polymerase chain reaction , single-strand conformation polymorphism , and DNA sequencing . RESULTS  Four missense mutations producing amino acid substitutions and a somatic 12-base pair deletion in the coding region of the DPC4 gene were detected in the 31 cancers ( 16 % ; 5 of 31 ) . CONCLUSIONS  The DPC4 gene may play a role as a tumor-suppressor gene in a fraction of colorectal cancers ; however , while allelic loss at 18q21 is very often seen in colorectal cancers , only a minority show DPC4 mutations , suggesting that there might be another tumor-suppressor gene in this chromosome region . . And here we have some more special characters Safe characters	Alphanumerics [ 0 - 9 a - z A - Z ] , special characters $ - _ . + ! * ' ( ) , , and reserved characters used for their reserved purposes ( e . g . , question mark used to denote a query string ) NO ASCII Control characters	Includes the ISO-8859-1 ( ISO-Latin ) character ranges 00-1F hex ( 0-31 decimal ) and 7F ( 127 decimal . )	YES. Non-ASCII characters: Includes the entire “ top half ” of the ISO-Latin set 80-FF hex ( 128-255 decimal . ) . Reserved characters ; / ? : @ = & ( does not include blank space ). Unsafe characters	Includes the blank/empty space and " < > # % { } | \ ^ ~ [ ] `</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-3 col-xs-offset-1">
+      <ul class="annotation-type-list list-group"></ul>
+    </div>
+
+    <div class="col-xs-7">
+      <ul class="annotation-list list-group"></ul>
+    </div>
+  </div>
+
+</div>
+<script src="../src/lib/jquery-1.11.1.min.js"></script>
+<script src="../src/lib/bootstrap.min.js"></script>
+<script src="../src/lib/underscore-min.js"></script>
+<script src="../src/underscore.string.min.js"></script>
+<script src="../src/lib/backbone-min.js"></script>
+<script src="../src/backbone-relational.js"></script>
+<script src="../src/lib/backbone.radio.min.js"></script>
+<script src="../src/backbone.marionette_v3.min.js"></script>
+
+<script src="../src/ypet-new.js"></script>
+<script src="test-old.js"></script>
+</body>
+</html>

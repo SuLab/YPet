@@ -35,6 +35,8 @@ var _ITERATIONS = 5;
 var _wordList = [],
     _invalidWordList = [];
 
+var $paragraph;
+
 /**
  * If on every click on the word, the word just changed is to be printed to console
  * @type {boolean}
@@ -127,7 +129,7 @@ function _processWords() {
     // Get the last instance of YPet
     var lastTop = -1,
         lastArray = undefined;
-    $($(".paragraph").get($(".paragraph").length - 1)).find("span").each(function() {
+    $($paragraph.get($paragraph.length - 1)).find("span").each(function() {
         var top = $(this).offset().top;
         if (top !== lastTop) {
             _wordList.push(lastArray);
@@ -354,6 +356,8 @@ document.testInit = function() {
         }
     });
 
+    $paragraph = $(".paragraph");
+
     _processWords();
 };
 
@@ -565,7 +569,7 @@ document._testDragToSelectedWord = function() {
     try {
         "use strict";
 
-        console.log("Test dragging forward to word selection");
+        console.log("Test dragging to word selection");
 
         for (var i = 0; i < _ITERATIONS; ++i) {
             // Select four words
@@ -912,6 +916,106 @@ Got   : ${JSON.stringify(got)}
         return e.message;
     }
     return "";
+};
+
+document._testSelectAll = function() {
+    console.log("Test selecting everything");
+    var $first = _wordList[0][0];
+    var $last = _wordList[_wordList.length - 1];
+    $last = $last[$last.length - 1];
+
+    _dragAndTest($first, $last);
+};
+
+document._testClickOnEachValidWord = function() {
+    console.log("Test clicking on each valid word");
+    _.each(_wordList, (words) => {
+        _.each(words, (word) => {
+            if (isValidWord($(word).text())) {
+                console.log (` >> click: ${$(word).text()}`);
+                $(word).mousedown().mouseup();
+                _assertSameWord($(word));
+                _testCycle($(word));
+            }
+        })
+    })
+};
+
+/**
+ * Returns the jQuery object at the certain index in the paragraph
+ * @param index - the index of the element (0-based)
+ * @private
+ */
+function _getElementIndexedAt(index) {
+    return $paragraph.find(`span:nth-child(${index + 1})`);
+}
+
+document._testClickOnValidWordsFixed = function() {
+    console.log("Test clicking on valid words (fixed) ...");
+
+    var $word = _getElementIndexedAt(6);
+    $word.mousedown().mouseup();
+    _assertSameWord($word);
+    _testCycle($word);
+};
+
+document._testDragFixed = function() {
+    console.log("Test dragging the words (fixed) ...");
+
+    var tests = [0, 2, 9, 11, 15, 13];
+
+    for (var i = 0; i < tests.length; i += 2) {
+        var $left = _getElementIndexedAt(tests[i]),
+            $right = _getElementIndexedAt(tests[i + 1]);
+
+        _dragAndTest($left, $right);
+    }
+};
+
+document._testDragSelectedFixed = function() {
+    console.log("Test dragging from/to/over word selection (fixed) ... ");
+
+    /**
+     * The tests are comprised of groups of four indices.
+     * For each group, we will first drag the words indexed by the first two elements, then drag the words indexed by
+     * the last two elements.
+     */
+    var tests = [22, 26, 20, 28, 34, 33, 35, 33, 38, 40, 40, 41, 49, 47, 48, 46, 60, 62, 59, 60, 65, 66, 67, 66, 73, 72, 71, 72];
+
+    for (var i = 0; i < tests.length; i += 4) {
+        var $selectLeft = _getElementIndexedAt(tests[i]),
+            $selectRight = _getElementIndexedAt(tests[i + 1]),
+            $dragLeft = _getElementIndexedAt(tests[i + 2]),
+            $dragRight = _getElementIndexedAt(tests[i + 3]);
+
+        // Pre-drag the words
+        _simulateDragSelectWords($selectLeft, $selectRight);
+        _setRandomTypeID($selectLeft);
+
+        // Drag it
+        _dragAndTest($dragLeft, $dragRight);
+    }
+};
+
+document._testDragInvalidWordFixed = function() {
+    console.log("Test dragging from/to invalid words (fixed) ...");
+
+    /**
+     * Similar to `_testDragSelectedFixed`, the tests are comprised of groups of four.
+     * For each group, we drag the words indexed by the first two elements, then we will check if the same words are
+     * selected indexed by the last two elements
+     * @type {number[]}
+     */
+    var tests = [78, 75, 76, 78, 100, 102, 100, 101];
+
+    for (var i = 0; i < tests.length; i += 4) {
+        var $dragLeft = _getElementIndexedAt(tests[i]),
+            $dragRight = _getElementIndexedAt(tests[i + 1]),
+            $checkLeft = _getElementIndexedAt(tests[i + 2]),
+            $checkRight = _getElementIndexedAt(tests[i + 3]);
+
+        _dragAndTest($dragLeft, $dragRight, $checkLeft, $checkRight);
+    }
 };
 
 function runLocalBrowswerTest() {
